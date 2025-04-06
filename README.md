@@ -113,50 +113,19 @@ fiber-rbac/
 ## License
 This project is licensed under the MIT License.
 
----
+## Upcoming Features
+- JWT authentication implementation
+- User-Role association management
+- Role-Permission association management
+- Request rate limiting
+- Logging functionality
+- Unit and integration tests
+- Docker containerization
 
-# Fiber RBAC 服务
+## Contributing
+Contributions are welcome! If you'd like to contribute, please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-## 介绍
-这是一个使用 Go Fiber 构建的基于角色的访问控制（RBAC）服务。支持 SQLite、MySQL 和 PostgreSQL 数据库。
-
-## 功能
-- 用户管理
-- 角色管理
-- 权限管理
-- JWT 认证
-
-## 快速开始
-
-### 前提条件
-- Go 1.22 或更高版本
-- SQLite、MySQL 或 PostgreSQL
-
-### 安装
-1. 克隆仓库：
-   ```bash
-   git clone https://github.com/lvyunze/fiber-rbac.git
-   ```
-2. 进入项目目录：
-   ```bash
-   cd fiber-rbac
-   ```
-3. 安装依赖：
-   ```bash
-   go mod tidy
-   ```
-
-### 配置
-编辑 `config.yaml` 文件以配置数据库设置。
-
-### 运行服务
-启动服务器：
-```bash
-   go run main.go
-```
-
-## API 端点
-- `POST /api/v1/users`: 创建新用户
-
-## 许可证
-此项目使用 MIT 许可证。 
+Feel free to suggest new features or improvements by opening an issue.
