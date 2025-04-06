@@ -6,9 +6,9 @@
 这是一个使用 Go Fiber 构建的基于角色的访问控制（RBAC）服务。支持 SQLite、MySQL 和 PostgreSQL 数据库。
 
 ## 功能
-- 用户管理（增删改查操作）
-- 角色管理（增删改查操作）
-- 权限管理（增删改查操作）
+- 用户管理
+- 角色管理
+- 权限管理
 - JWT 认证
 - 支持多种数据库（SQLite、MySQL、PostgreSQL）
 

@@ -6,9 +6,9 @@
 This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supports SQLite, MySQL, and PostgreSQL databases.
 
 ## Features
-- User management (CRUD operations)
-- Role management (CRUD operations)
-- Permission management (CRUD operations)
+- User management
+- Role management
+- Permission management
 - JWT authentication
 - Support for multiple databases (SQLite, MySQL, PostgreSQL)
 
