@@ -1,0 +1,21 @@
+server:
+  port: 3000
+  jwt_secret: "your-secret-key"
+
+database:
+  type: "sqlite" # sqlite, mysql, postgres
+  sqlite:
+    file: "rbac.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    user: "root"
+    password: "password"
+    dbname: "fiber_rbac"
+  postgres:
+    host: "localhost"
+    port: 5432
+    user: "postgres"
+    password: "password"
+    dbname: "fiber_rbac"
+    sslmode: "disable" 
