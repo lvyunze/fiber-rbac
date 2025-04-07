@@ -27,6 +27,11 @@ const (
 	CodeMethodNotAllowed = 1005 // 方法不允许
 	CodeServerError      = 1006 // 服务器错误
 
+	// 令牌相关错误 (1050-1099)
+	CodeTokenNotProvided = 1006 // 未提供令牌
+	CodeTokenExpired     = 1007 // 令牌已过期
+	CodeTokenInvalid     = 1008 // 无效的令牌
+
 	// 用户相关错误 (1100-1199)
 	CodeUserNotFound       = 1100 // 用户不存在
 	CodeInvalidCredentials = 1101 // 无效的凭证
@@ -94,6 +99,11 @@ func NotFoundError(c *fiber.Ctx, message string, code ...int) error {
 // ServerError 返回服务器错误
 func ServerError(c *fiber.Ctx, message string) error {
 	return ErrorResponse(c, CodeServerError, message)
+}
+
+// TokenError 返回令牌相关错误
+func TokenError(c *fiber.Ctx, message string, code int) error {
+	return ErrorResponse(c, code, message)
 }
 
 // ParseResponse 解析HTTP响应体到Response结构体

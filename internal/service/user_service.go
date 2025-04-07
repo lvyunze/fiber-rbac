@@ -9,6 +9,7 @@ type UserService interface {
 	CreateUser(user *models.User) error
 	GetUsers() ([]models.User, error)
 	GetUserByID(id uint) (*models.User, error)
+	GetUserByUsername(username string) (*models.User, error)
 	UpdateUserByID(id uint, user *models.User) error
 	DeleteUserByID(id uint) error
 }
@@ -31,6 +32,10 @@ func (s *userService) GetUsers() ([]models.User, error) {
 
 func (s *userService) GetUserByID(id uint) (*models.User, error) {
 	return s.repo.FindByID(id)
+}
+
+func (s *userService) GetUserByUsername(username string) (*models.User, error) {
+	return s.repo.FindByUsername(username)
 }
 
 func (s *userService) UpdateUserByID(id uint, user *models.User) error {

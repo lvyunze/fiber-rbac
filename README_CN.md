@@ -9,9 +9,11 @@
 - 用户管理
 - 角色管理
 - 权限管理
-- JWT 认证
+- JWT 认证和令牌刷新
+- 用户注册和登录
 - 支持多种数据库（SQLite、MySQL、PostgreSQL）
 - IP 访问控制（白名单/黑名单）
+- 统一的API响应格式
 
 ## 快速开始
 
@@ -34,9 +36,13 @@
    ```
 
 ### 配置
-编辑 `config.yaml` 文件以配置数据库设置和IP限制：
+编辑 `config.yaml` 文件以配置数据库设置、IP限制和JWT密钥：
 
 ```yaml
+server:
+  port: 3000
+  jwt_secret: your-jwt-secret-key # JWT认证密钥
+
 db:
   driver: sqlite  # 选项: sqlite, mysql, postgres
   host: localhost
@@ -74,6 +80,11 @@ go run main.go
 
 ## API 端点
 
+### 认证
+- `POST /api/v1/auth/register`：注册新用户
+- `POST /api/v1/auth/login`：用户登录
+- `POST /api/v1/auth/refresh`：刷新JWT令牌
+
 ### 用户
 - `POST /api/v1/users`：创建新用户
 - `GET /api/v1/users`：获取所有用户
@@ -95,12 +106,68 @@ go run main.go
 - `PUT /api/v1/permissions/:id`：更新权限
 - `DELETE /api/v1/permissions/:id`：删除权限
 
+## 认证流程
+
+### 注册
+要注册新用户，向 `/api/v1/auth/register` 发送POST请求，JSON内容如下：
+```json
+{
+  "username": "john_doe",
+  "password": "secure_password",
+  "email": "john@example.com"
+}
+```
+
+注册成功后，API将返回一个JWT令牌，可用于后续认证。
+
+### 登录
+要登录，向 `/api/v1/auth/login` 发送POST请求，内容如下：
+```json
+{
+  "username": "john_doe",
+  "password": "secure_password"
+}
+```
+
+### 令牌刷新
+要刷新已过期的JWT令牌，向 `/api/v1/auth/refresh` 发送POST请求，内容如下：
+```json
+{
+  "token": "你的已过期或有效的JWT令牌"
+}
+```
+
+### 在请求中使用JWT
+对于受保护的端点，在Authorization头中包含JWT令牌：
+```
+Authorization: Bearer 你的JWT令牌
+```
+
+## 响应格式
+所有API响应遵循统一格式：
+```json
+{
+  "status": "success|error",
+  "code": 1000,
+  "message": "操作成功",
+  "data": { ... }
+}
+```
+
+状态码：
+- 1000: 成功
+- 1001-1099: 一般错误
+- 1100-1199: 用户相关错误
+- 1200-1299: 角色相关错误
+- 1300-1399: 权限相关错误
+
 ## 项目结构
 ```
 fiber-rbac/
 │
 ├── api/
 │   └── v1/
+│       ├── auth_handlers.go
 │       ├── user_handlers.go
 │       ├── role_handlers.go
 │       └── permission_handlers.go
@@ -128,6 +195,9 @@ fiber-rbac/
 │       └── response.go
 │
 ├── test/
+│   ├── api/
+│   │   └── v1/
+│   │       └── auth_handlers_test.go
 │   ├── handler/
 │   │   ├── user_handler_test.go
 │   │   ├── role_handler_test.go
@@ -138,13 +208,16 @@ fiber-rbac/
 │   │   ├── user_service_test.go
 │   │   ├── role_service_test.go
 │   │   └── permission_service_test.go
-│   └── repository/
-│       ├── user_repository_test.go
-│       ├── role_repository_test.go
-│       └── permission_repository_test.go
+│   ├── repository/
+│   │   ├── user_repository_test.go
+│   │   ├── role_repository_test.go
+│   │   └── permission_repository_test.go
+│   └── utils/
+│       └── jwt_test.go
 │
 ├── main.go
 ├── go.mod
+├── go.sum
 ├── config.yaml
 ├── README.md
 └── README_CN.md
@@ -153,11 +226,13 @@ fiber-rbac/
 ## 许可证
 此项目使用 MIT 许可证。 
 
-## 待实现功能
-- JWT认证机制
+## 已实现和待实现功能
+- ~~JWT认证机制~~ (已实现)
 - 用户-角色关联管理
 - 角色-权限关联管理
+- ~~请求速率限制~~ (已实现IP访问控制)
 - 日志记录功能
+- ~~单元和集成测试~~ (已实现全面测试)
 - Docker容器化部署
 
 ## 贡献

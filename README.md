@@ -9,9 +9,11 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
 - User management
 - Role management
 - Permission management
-- JWT authentication
+- JWT authentication and token refresh
+- User registration and login
 - Support for multiple databases (SQLite, MySQL, PostgreSQL)
 - IP access control (whitelist/blacklist)
+- Unified API response format
 
 ## Getting Started
 
@@ -34,9 +36,13 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
    ```
 
 ### Configuration
-Edit the `config.yaml` file to configure your database settings and IP restrictions:
+Edit the `config.yaml` file to configure your database settings, IP restrictions, and JWT secret:
 
 ```yaml
+server:
+  port: 3000
+  jwt_secret: your-jwt-secret-key # JWT secret key for authentication
+
 db:
   driver: sqlite  # Options: sqlite, mysql, postgres
   host: localhost
@@ -74,6 +80,11 @@ go run main.go
 
 ## API Endpoints
 
+### Authentication
+- `POST /api/v1/auth/register`: Register a new user
+- `POST /api/v1/auth/login`: Login with username and password
+- `POST /api/v1/auth/refresh`: Refresh JWT token
+
 ### Users
 - `POST /api/v1/users`: Create a new user
 - `GET /api/v1/users`: Get all users
@@ -95,12 +106,68 @@ go run main.go
 - `PUT /api/v1/permissions/:id`: Update a permission
 - `DELETE /api/v1/permissions/:id`: Delete a permission
 
+## Authentication Flow
+
+### Registration
+To register a new user, send a POST request to `/api/v1/auth/register` with the following JSON body:
+```json
+{
+  "username": "john_doe",
+  "password": "secure_password",
+  "email": "john@example.com"
+}
+```
+
+Upon successful registration, the API returns a JWT token which can be used for authentication.
+
+### Login
+To login, send a POST request to `/api/v1/auth/login` with:
+```json
+{
+  "username": "john_doe",
+  "password": "secure_password"
+}
+```
+
+### Token Refresh
+To refresh an expired JWT token, send a POST request to `/api/v1/auth/refresh` with:
+```json
+{
+  "token": "your-expired-or-valid-jwt-token"
+}
+```
+
+### Using JWT in Requests
+For protected endpoints, include the JWT token in the Authorization header:
+```
+Authorization: Bearer your-jwt-token
+```
+
+## Response Format
+All API responses follow a unified format:
+```json
+{
+  "status": "success|error",
+  "code": 1000,
+  "message": "operation successful",
+  "data": { ... }
+}
+```
+
+Status codes:
+- 1000: Success
+- 1001-1099: General errors
+- 1100-1199: User-related errors
+- 1200-1299: Role-related errors
+- 1300-1399: Permission-related errors
+
 ## Project Structure
 ```
 fiber-rbac/
 │
 ├── api/
 │   └── v1/
+│       ├── auth_handlers.go
 │       ├── user_handlers.go
 │       ├── role_handlers.go
 │       └── permission_handlers.go
@@ -128,6 +195,9 @@ fiber-rbac/
 │       └── response.go
 │
 ├── test/
+│   ├── api/
+│   │   └── v1/
+│   │       └── auth_handlers_test.go
 │   ├── handler/
 │   │   ├── user_handler_test.go
 │   │   ├── role_handler_test.go
@@ -138,13 +208,16 @@ fiber-rbac/
 │   │   ├── user_service_test.go
 │   │   ├── role_service_test.go
 │   │   └── permission_service_test.go
-│   └── repository/
-│       ├── user_repository_test.go
-│       ├── role_repository_test.go
-│       └── permission_repository_test.go
+│   ├── repository/
+│   │   ├── user_repository_test.go
+│   │   ├── role_repository_test.go
+│   │   └── permission_repository_test.go
+│   └── utils/
+│       └── jwt_test.go
 │
 ├── main.go
 ├── go.mod
+├── go.sum
 ├── config.yaml
 ├── README.md
 └── README_CN.md
@@ -154,12 +227,12 @@ fiber-rbac/
 This project is licensed under the MIT License.
 
 ## Upcoming Features
-- JWT authentication implementation
+- ~~JWT authentication implementation~~ (Implemented)
 - User-Role association management
 - Role-Permission association management
 - ~~Request rate limiting~~ (IP access control implemented)
 - Logging functionality
-- ~~Unit and integration tests~~ (Basic tests implemented)
+- ~~Unit and integration tests~~ (Comprehensive tests implemented)
 - Docker containerization
 
 ## Contributing

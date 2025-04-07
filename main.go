@@ -48,8 +48,25 @@ func main() {
 	roleService := service.NewRoleService(roleRepo)
 	permissionService := service.NewPermissionService(permissionRepo)
 
-	// Register routes
+	// 创建API路由组
 	router := app.Group("/api/v1")
+
+	// 注册认证路由（不需要JWT保护）
+	v1.RegisterAuthRoutes(router, userService)
+
+	// 配置JWT中间件
+	jwtMiddleware := middleware.JWTAuth(middleware.AuthConfig{
+		ExcludedPaths: []string{
+			"/api/v1/auth/login",
+			"/api/v1/auth/register",
+			"/api/v1/auth/refresh",
+		},
+	})
+
+	// 应用JWT中间件到所有受保护的路由
+	router.Use(jwtMiddleware)
+
+	// 注册其他路由（JWT保护）
 	v1.RegisterUserRoutes(router, userService)
 	v1.RegisterRoleRoutes(router, roleService)
 	v1.RegisterPermissionRoutes(router, permissionService)
