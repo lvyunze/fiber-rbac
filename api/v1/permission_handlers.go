@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/lvyunze/fiber-rbac/internal/models"
 	"github.com/lvyunze/fiber-rbac/internal/service"
+	"github.com/lvyunze/fiber-rbac/internal/utils"
 )
 
 // RegisterPermissionRoutes 注册权限相关的路由
@@ -21,26 +22,14 @@ func createPermissionHandler(permissionService service.PermissionService) fiber.
 	return func(c *fiber.Ctx) error {
 		permission := new(models.Permission)
 		if err := c.BodyParser(permission); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无法解析JSON",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无法解析JSON")
 		}
 
 		if err := permissionService.CreatePermission(permission); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "创建权限失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "创建权限失败")
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"status":  "success",
-			"message": "权限创建成功",
-			"data":    permission,
-		})
+		return utils.SuccessResponse(c, "权限创建成功", permission)
 	}
 }
 
@@ -48,18 +37,10 @@ func getPermissionsHandler(permissionService service.PermissionService) fiber.Ha
 	return func(c *fiber.Ctx) error {
 		permissions, err := permissionService.GetPermissions()
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "获取权限列表失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "获取权限列表失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "获取权限列表成功",
-			"data":    permissions,
-		})
+		return utils.SuccessResponse(c, "获取权限列表成功", permissions)
 	}
 }
 
@@ -67,27 +48,15 @@ func getPermissionByIDHandler(permissionService service.PermissionService) fiber
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的权限ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的权限ID")
 		}
 
 		permission, err := permissionService.GetPermissionByID(uint(id))
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"status":  "error",
-				"message": "权限不存在",
-				"data":    nil,
-			})
+			return utils.NotFoundError(c, "权限不存在", utils.ErrPermissionNotFound)
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "获取权限成功",
-			"data":    permission,
-		})
+		return utils.SuccessResponse(c, "获取权限成功", permission)
 	}
 }
 
@@ -95,35 +64,19 @@ func updatePermissionByIDHandler(permissionService service.PermissionService) fi
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的权限ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的权限ID")
 		}
 
 		permission := new(models.Permission)
 		if err := c.BodyParser(permission); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无法解析JSON",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无法解析JSON")
 		}
 
 		if err := permissionService.UpdatePermissionByID(uint(id), permission); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "更新权限失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "更新权限失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "更新权限成功",
-			"data":    permission,
-		})
+		return utils.SuccessResponse(c, "更新权限成功", permission)
 	}
 }
 
@@ -131,25 +84,13 @@ func deletePermissionByIDHandler(permissionService service.PermissionService) fi
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的权限ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的权限ID")
 		}
 
 		if err := permissionService.DeletePermissionByID(uint(id)); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "删除权限失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "删除权限失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "删除权限成功",
-			"data":    nil,
-		})
+		return utils.SuccessResponse(c, "删除权限成功", nil)
 	}
 }

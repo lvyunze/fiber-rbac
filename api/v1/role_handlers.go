@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/lvyunze/fiber-rbac/internal/models"
 	"github.com/lvyunze/fiber-rbac/internal/service"
+	"github.com/lvyunze/fiber-rbac/internal/utils"
 )
 
 // RegisterRoleRoutes 注册角色相关的路由
@@ -21,26 +22,14 @@ func createRoleHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		role := new(models.Role)
 		if err := c.BodyParser(role); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无法解析JSON",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无法解析JSON")
 		}
 
 		if err := roleService.CreateRole(role); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "创建角色失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "创建角色失败")
 		}
 
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"status":  "success",
-			"message": "角色创建成功",
-			"data":    role,
-		})
+		return utils.SuccessResponse(c, "角色创建成功", role)
 	}
 }
 
@@ -48,18 +37,10 @@ func getRolesHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		roles, err := roleService.GetRoles()
 		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "获取角色列表失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "获取角色列表失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "获取角色列表成功",
-			"data":    roles,
-		})
+		return utils.SuccessResponse(c, "获取角色列表成功", roles)
 	}
 }
 
@@ -67,27 +48,15 @@ func getRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的角色ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的角色ID")
 		}
 
 		role, err := roleService.GetRoleByID(uint(id))
 		if err != nil {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"status":  "error",
-				"message": "角色不存在",
-				"data":    nil,
-			})
+			return utils.NotFoundError(c, "角色不存在", utils.ErrRoleNotFound)
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "获取角色成功",
-			"data":    role,
-		})
+		return utils.SuccessResponse(c, "获取角色成功", role)
 	}
 }
 
@@ -95,35 +64,19 @@ func updateRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的角色ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的角色ID")
 		}
 
 		role := new(models.Role)
 		if err := c.BodyParser(role); err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无法解析JSON",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无法解析JSON")
 		}
 
 		if err := roleService.UpdateRoleByID(uint(id), role); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "更新角色失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "更新角色失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "更新角色成功",
-			"data":    role,
-		})
+		return utils.SuccessResponse(c, "更新角色成功", role)
 	}
 }
 
@@ -131,25 +84,13 @@ func deleteRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"status":  "error",
-				"message": "无效的角色ID",
-				"data":    nil,
-			})
+			return utils.BadRequestError(c, "无效的角色ID")
 		}
 
 		if err := roleService.DeleteRoleByID(uint(id)); err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"status":  "error",
-				"message": "删除角色失败",
-				"data":    nil,
-			})
+			return utils.ServerError(c, "删除角色失败")
 		}
 
-		return c.JSON(fiber.Map{
-			"status":  "success",
-			"message": "删除角色成功",
-			"data":    nil,
-		})
+		return utils.SuccessResponse(c, "删除角色成功", nil)
 	}
 }
