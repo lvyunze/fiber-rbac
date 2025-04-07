@@ -53,7 +53,7 @@ func getRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 
 		role, err := roleService.GetRoleByID(uint(id))
 		if err != nil {
-			return utils.NotFoundError(c, "角色不存在", utils.ErrRoleNotFound)
+			return utils.NotFoundError(c, "角色不存在", utils.CodeRoleNotFound)
 		}
 
 		return utils.SuccessResponse(c, "获取角色成功", role)

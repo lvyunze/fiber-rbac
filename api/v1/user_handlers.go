@@ -53,7 +53,7 @@ func getUserByIDHandler(userService service.UserService) fiber.Handler {
 
 		user, err := userService.GetUserByID(uint(id))
 		if err != nil {
-			return utils.NotFoundError(c, "用户不存在", utils.ErrUserNotFound)
+			return utils.NotFoundError(c, "用户不存在", utils.CodeUserNotFound)
 		}
 
 		return utils.SuccessResponse(c, "获取用户成功", user)

@@ -53,7 +53,7 @@ func getPermissionByIDHandler(permissionService service.PermissionService) fiber
 
 		permission, err := permissionService.GetPermissionByID(uint(id))
 		if err != nil {
-			return utils.NotFoundError(c, "权限不存在", utils.ErrPermissionNotFound)
+			return utils.NotFoundError(c, "权限不存在", utils.CodePermissionNotFound)
 		}
 
 		return utils.SuccessResponse(c, "获取权限成功", permission)
