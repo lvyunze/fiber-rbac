@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterPermissionRoutes 注册权限相关的路由
-func RegisterPermissionRoutes(router fiber.Router, permissionService *service.PermissionService) {
+func RegisterPermissionRoutes(router fiber.Router, permissionService service.PermissionService) {
 	permissions := router.Group("/permissions")
 
 	permissions.Post("/", createPermissionHandler(permissionService))
@@ -17,7 +17,7 @@ func RegisterPermissionRoutes(router fiber.Router, permissionService *service.Pe
 	permissions.Delete("/:id", deletePermissionByIDHandler(permissionService))
 }
 
-func createPermissionHandler(permissionService *service.PermissionService) fiber.Handler {
+func createPermissionHandler(permissionService service.PermissionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		permission := new(models.Permission)
 		if err := c.BodyParser(permission); err != nil {
@@ -44,7 +44,7 @@ func createPermissionHandler(permissionService *service.PermissionService) fiber
 	}
 }
 
-func getPermissionsHandler(permissionService *service.PermissionService) fiber.Handler {
+func getPermissionsHandler(permissionService service.PermissionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		permissions, err := permissionService.GetPermissions()
 		if err != nil {
@@ -63,7 +63,7 @@ func getPermissionsHandler(permissionService *service.PermissionService) fiber.H
 	}
 }
 
-func getPermissionByIDHandler(permissionService *service.PermissionService) fiber.Handler {
+func getPermissionByIDHandler(permissionService service.PermissionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -91,7 +91,7 @@ func getPermissionByIDHandler(permissionService *service.PermissionService) fibe
 	}
 }
 
-func updatePermissionByIDHandler(permissionService *service.PermissionService) fiber.Handler {
+func updatePermissionByIDHandler(permissionService service.PermissionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -127,7 +127,7 @@ func updatePermissionByIDHandler(permissionService *service.PermissionService) f
 	}
 }
 
-func deletePermissionByIDHandler(permissionService *service.PermissionService) fiber.Handler {
+func deletePermissionByIDHandler(permissionService service.PermissionService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {

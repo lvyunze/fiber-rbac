@@ -31,9 +31,9 @@ func main() {
 	roleRepo := repository.NewRoleRepository(db)
 	permissionRepo := repository.NewPermissionRepository(db)
 
-	userService := service.NewUserService(*userRepo)
-	roleService := service.NewRoleService(*roleRepo)
-	permissionService := service.NewPermissionService(*permissionRepo)
+	userService := service.NewUserService(userRepo)
+	roleService := service.NewRoleService(roleRepo)
+	permissionService := service.NewPermissionService(permissionRepo)
 
 	// Register routes
 	router := app.Group("/api/v1")

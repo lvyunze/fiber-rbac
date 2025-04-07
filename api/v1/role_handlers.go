@@ -7,7 +7,7 @@ import (
 )
 
 // RegisterRoleRoutes 注册角色相关的路由
-func RegisterRoleRoutes(router fiber.Router, roleService *service.RoleService) {
+func RegisterRoleRoutes(router fiber.Router, roleService service.RoleService) {
 	roles := router.Group("/roles")
 
 	roles.Post("/", createRoleHandler(roleService))
@@ -17,7 +17,7 @@ func RegisterRoleRoutes(router fiber.Router, roleService *service.RoleService) {
 	roles.Delete("/:id", deleteRoleByIDHandler(roleService))
 }
 
-func createRoleHandler(roleService *service.RoleService) fiber.Handler {
+func createRoleHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		role := new(models.Role)
 		if err := c.BodyParser(role); err != nil {
@@ -44,7 +44,7 @@ func createRoleHandler(roleService *service.RoleService) fiber.Handler {
 	}
 }
 
-func getRolesHandler(roleService *service.RoleService) fiber.Handler {
+func getRolesHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		roles, err := roleService.GetRoles()
 		if err != nil {
@@ -63,7 +63,7 @@ func getRolesHandler(roleService *service.RoleService) fiber.Handler {
 	}
 }
 
-func getRoleByIDHandler(roleService *service.RoleService) fiber.Handler {
+func getRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -91,7 +91,7 @@ func getRoleByIDHandler(roleService *service.RoleService) fiber.Handler {
 	}
 }
 
-func updateRoleByIDHandler(roleService *service.RoleService) fiber.Handler {
+func updateRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
@@ -127,7 +127,7 @@ func updateRoleByIDHandler(roleService *service.RoleService) fiber.Handler {
 	}
 }
 
-func deleteRoleByIDHandler(roleService *service.RoleService) fiber.Handler {
+func deleteRoleByIDHandler(roleService service.RoleService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id, err := c.ParamsInt("id")
 		if err != nil {
