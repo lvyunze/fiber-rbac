@@ -4,9 +4,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	v1 "github.com/lvyunze/fiber-rbac/api/v1"
 	"github.com/lvyunze/fiber-rbac/internal/config"
+	"github.com/lvyunze/fiber-rbac/internal/middleware"
 	"github.com/lvyunze/fiber-rbac/internal/models"
 	"github.com/lvyunze/fiber-rbac/internal/repository"
 	"github.com/lvyunze/fiber-rbac/internal/service"
+	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -25,6 +27,17 @@ func main() {
 
 	// Migrate the schema
 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{})
+
+	// 配置IP限制中间件
+	if viper.GetBool("ip_limit.enabled") {
+		whitelistMode := viper.GetBool("ip_limit.whitelist_mode")
+		whitelist := viper.GetStringSlice("ip_limit.whitelist")
+		blacklist := viper.GetStringSlice("ip_limit.blacklist")
+		allowedNetworks := viper.GetStringSlice("ip_limit.allowed_networks")
+
+		ipLimiter := middleware.NewIPLimiter(whitelistMode, whitelist, blacklist, allowedNetworks)
+		app.Use(ipLimiter.Handler())
+	}
 
 	// Initialize repositories and services
 	userRepo := repository.NewUserRepository(db)

@@ -11,6 +11,7 @@
 - 权限管理
 - JWT 认证
 - 支持多种数据库（SQLite、MySQL、PostgreSQL）
+- IP 访问控制（白名单/黑名单）
 
 ## 快速开始
 
@@ -33,7 +34,7 @@
    ```
 
 ### 配置
-编辑 `config.yaml` 文件以配置数据库设置：
+编辑 `config.yaml` 文件以配置数据库设置和IP限制：
 
 ```yaml
 db:
@@ -43,6 +44,26 @@ db:
   user: root
   password: password
   name: rbac
+
+# IP限制配置
+ip_limit:
+  enabled: true  # 是否启用IP限制
+  whitelist_mode: false  # true: 只允许白名单中的IP访问, false: 阻止黑名单中的IP访问
+  
+  # IP白名单列表
+  whitelist:
+    - 127.0.0.1
+    - 192.168.1.100
+    
+  # IP黑名单列表
+  blacklist:
+    - 10.0.0.5
+    - 192.168.1.200
+  
+  # 允许的IP网段 (CIDR格式)
+  allowed_networks:
+    - 192.168.0.0/16  # 192.168.0.0 - 192.168.255.255
+    - 10.0.0.0/8      # 10.0.0.0 - 10.255.255.255
 ```
 
 ### 运行服务
@@ -88,7 +109,8 @@ fiber-rbac/
 │   ├── config/
 │   │   └── config.go
 │   ├── middleware/
-│   │   └── auth.go
+│   │   ├── auth.go
+│   │   └── ip_limit.go
 │   ├── models/
 │   │   ├── user.go
 │   │   ├── role.go
@@ -102,10 +124,28 @@ fiber-rbac/
 │   │   ├── role_service.go
 │   │   └── permission_service.go
 │   └── utils/
-│       └── jwt.go
+│       ├── jwt.go
+│       └── response.go
+│
+├── test/
+│   ├── handler/
+│   │   ├── user_handler_test.go
+│   │   ├── role_handler_test.go
+│   │   └── permission_handler_test.go
+│   ├── middleware/
+│   │   └── ip_limit_test.go
+│   ├── service/
+│   │   ├── user_service_test.go
+│   │   ├── role_service_test.go
+│   │   └── permission_service_test.go
+│   └── repository/
+│       ├── user_repository_test.go
+│       ├── role_repository_test.go
+│       └── permission_repository_test.go
 │
 ├── main.go
 ├── go.mod
+├── config.yaml
 ├── README.md
 └── README_CN.md
 ```
@@ -117,9 +157,7 @@ fiber-rbac/
 - JWT认证机制
 - 用户-角色关联管理
 - 角色-权限关联管理
-- 请求速率限制
 - 日志记录功能
-- 单元测试与集成测试
 - Docker容器化部署
 
 ## 贡献

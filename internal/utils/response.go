@@ -1,6 +1,11 @@
 package utils
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 // 统一状态码定义
 const (
@@ -89,4 +94,9 @@ func NotFoundError(c *fiber.Ctx, message string, code ...int) error {
 // ServerError 返回服务器错误
 func ServerError(c *fiber.Ctx, message string) error {
 	return ErrorResponse(c, CodeServerError, message)
+}
+
+// ParseResponse 解析HTTP响应体到Response结构体
+func ParseResponse(resp *http.Response, response *Response) error {
+	return json.NewDecoder(resp.Body).Decode(response)
 }

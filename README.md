@@ -11,6 +11,7 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
 - Permission management
 - JWT authentication
 - Support for multiple databases (SQLite, MySQL, PostgreSQL)
+- IP access control (whitelist/blacklist)
 
 ## Getting Started
 
@@ -33,7 +34,7 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
    ```
 
 ### Configuration
-Edit the `config.yaml` file to configure your database settings:
+Edit the `config.yaml` file to configure your database settings and IP restrictions:
 
 ```yaml
 db:
@@ -43,6 +44,26 @@ db:
   user: root
   password: password
   name: rbac
+
+# IP restriction configuration
+ip_limit:
+  enabled: true  # Whether to enable IP restrictions
+  whitelist_mode: false  # true: only allow IPs in whitelist, false: block IPs in blacklist
+  
+  # IP whitelist
+  whitelist:
+    - 127.0.0.1
+    - 192.168.1.100
+    
+  # IP blacklist
+  blacklist:
+    - 10.0.0.5
+    - 192.168.1.200
+  
+  # Allowed IP networks (CIDR format)
+  allowed_networks:
+    - 192.168.0.0/16  # 192.168.0.0 - 192.168.255.255
+    - 10.0.0.0/8      # 10.0.0.0 - 10.255.255.255
 ```
 
 ### Running the Service
@@ -88,7 +109,8 @@ fiber-rbac/
 │   ├── config/
 │   │   └── config.go
 │   ├── middleware/
-│   │   └── auth.go
+│   │   ├── auth.go
+│   │   └── ip_limit.go
 │   ├── models/
 │   │   ├── user.go
 │   │   ├── role.go
@@ -102,10 +124,28 @@ fiber-rbac/
 │   │   ├── role_service.go
 │   │   └── permission_service.go
 │   └── utils/
-│       └── jwt.go
+│       ├── jwt.go
+│       └── response.go
+│
+├── test/
+│   ├── handler/
+│   │   ├── user_handler_test.go
+│   │   ├── role_handler_test.go
+│   │   └── permission_handler_test.go
+│   ├── middleware/
+│   │   └── ip_limit_test.go
+│   ├── service/
+│   │   ├── user_service_test.go
+│   │   ├── role_service_test.go
+│   │   └── permission_service_test.go
+│   └── repository/
+│       ├── user_repository_test.go
+│       ├── role_repository_test.go
+│       └── permission_repository_test.go
 │
 ├── main.go
 ├── go.mod
+├── config.yaml
 ├── README.md
 └── README_CN.md
 ```
@@ -117,9 +157,9 @@ This project is licensed under the MIT License.
 - JWT authentication implementation
 - User-Role association management
 - Role-Permission association management
-- Request rate limiting
+- ~~Request rate limiting~~ (IP access control implemented)
 - Logging functionality
-- Unit and integration tests
+- ~~Unit and integration tests~~ (Basic tests implemented)
 - Docker containerization
 
 ## Contributing
