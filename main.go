@@ -1,32 +1,48 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	v1 "github.com/lvyunze/fiber-rbac/api/v1"
 	"github.com/lvyunze/fiber-rbac/internal/config"
+	"github.com/lvyunze/fiber-rbac/internal/database"
 	"github.com/lvyunze/fiber-rbac/internal/middleware"
-	"github.com/lvyunze/fiber-rbac/internal/models"
 	"github.com/lvyunze/fiber-rbac/internal/repository"
 	"github.com/lvyunze/fiber-rbac/internal/service"
 	"github.com/spf13/viper"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func main() {
 	app := fiber.New()
 
-	// Load configuration
-	_ = config.LoadConfig()
+	// 加载配置
+	cfg := config.LoadConfig()
 
-	// Initialize database
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
+	// 初始化数据库
+	if err := database.InitDB(cfg); err != nil {
+		panic("failed to connect database: " + err.Error())
 	}
 
-	// Migrate the schema
-	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Permission{})
+	// 测试数据库连接
+	sqlDB, err := database.DB.DB()
+	if err != nil {
+		panic("无法获取数据库连接: " + err.Error())
+	}
+
+	// 测试数据库连接是否正常
+	if err := sqlDB.Ping(); err != nil {
+		panic("数据库连接测试失败: " + err.Error())
+	}
+
+	// 设置连接池参数
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	// 输出连接成功信息
+	fmt.Println("数据库连接测试成功，类型:", cfg.Database.Type)
 
 	// 配置IP限制中间件
 	if viper.GetBool("ip_limit.enabled") {
@@ -40,9 +56,9 @@ func main() {
 	}
 
 	// Initialize repositories and services
-	userRepo := repository.NewUserRepository(db)
-	roleRepo := repository.NewRoleRepository(db)
-	permissionRepo := repository.NewPermissionRepository(db)
+	userRepo := repository.NewUserRepository(database.DB)
+	roleRepo := repository.NewRoleRepository(database.DB)
+	permissionRepo := repository.NewPermissionRepository(database.DB)
 
 	userService := service.NewUserService(userRepo)
 	roleService := service.NewRoleService(roleRepo)

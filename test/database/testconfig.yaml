@@ -1,0 +1,31 @@
+server:
+  port: 8080
+  jwt_secret: "test-secret-key"
+
+database:
+  type: "sqlite"
+  sqlite:
+    file: "file::memory:?cache=shared"
+  mysql:
+    host: "localhost"
+    port: 3306
+    user: "test_user"
+    password: "test_password"
+    dbname: "test_db"
+  postgres:
+    host: "localhost"
+    port: 5432
+    user: "test_user"
+    password: "test_password"
+    dbname: "test_db"
+    sslmode: "disable"
+
+# IP限制配置
+ip_limit:
+  enabled: false
+  whitelist_mode: false
+  whitelist:
+    - "127.0.0.1"
+  blacklist: []
+  allowed_networks:
+    - "192.168.1.0/24" 

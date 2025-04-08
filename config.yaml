@@ -1,11 +1,11 @@
 server:
-  port: 3000
+  port: 8080
   jwt_secret: "your-secret-key"
 
 database:
-  type: "sqlite" # sqlite, mysql, postgres
+  type: "sqlite"  # 可选: sqlite, mysql, postgres
   sqlite:
-    file: "rbac.db"
+    file: "fiber-rbac.db"
   mysql:
     host: "localhost"
     port: 3306
@@ -22,20 +22,12 @@ database:
 
 # IP限制配置
 ip_limit:
-  enabled: true  # 是否启用IP限制
-  whitelist_mode: false  # true: 只允许白名单中的IP访问, false: 阻止黑名单中的IP访问
-  
-  # IP白名单列表
+  enabled: true
+  whitelist_mode: false
   whitelist:
-    - 127.0.0.1
-    - 192.168.1.100
-    
-  # IP黑名单列表
+    - "127.0.0.1"
+    - "192.168.1.0/24"
   blacklist:
-    - 10.0.0.5
-    - 192.168.1.200
-  
-  # 允许的IP网段 (CIDR格式)
+    - "10.0.0.0/8"
   allowed_networks:
-    - 192.168.0.0/16  # 192.168.0.0 - 192.168.255.255
-    - 10.0.0.0/8      # 10.0.0.0 - 10.255.255.255 
+    - "192.168.1.0/24" 
