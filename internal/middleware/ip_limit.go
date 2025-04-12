@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/lvyunze/fiber-rbac/internal/utils"
+	"go.uber.org/zap"
 )
 
 // IPLimiter 定义IP限制中间件的配置
@@ -42,16 +43,35 @@ func (il *IPLimiter) Handler() fiber.Handler {
 			ip = strings.TrimSpace(ips[0]) // 取第一个IP作为客户端真实IP
 		}
 
+		// 记录访问日志
+		utils.Info("收到请求",
+			zap.String("ip", ip),
+			zap.String("path", c.Path()),
+			zap.String("method", c.Method()),
+			zap.String("user-agent", c.Get("User-Agent")),
+		)
+
 		// 白名单模式：只允许白名单中的IP
 		if il.WhitelistMode {
 			if il.isIPAllowed(ip, il.Whitelist, il.AllowedNetworks) {
+				utils.Debug("IP白名单验证通过", zap.String("ip", ip))
 				return c.Next()
 			}
+			utils.Warn("IP不在白名单中，拒绝访问",
+				zap.String("ip", ip),
+				zap.String("path", c.Path()),
+				zap.Strings("whitelist", il.Whitelist),
+			)
 			return utils.ForbiddenError(c, "IP地址不在白名单中")
 		}
 
 		// 黑名单模式：阻止黑名单中的IP
 		if il.isIPBlocked(ip, il.Blacklist) {
+			utils.Warn("IP在黑名单中，拒绝访问",
+				zap.String("ip", ip),
+				zap.String("path", c.Path()),
+				zap.Strings("blacklist", il.Blacklist),
+			)
 			return utils.ForbiddenError(c, "IP地址在黑名单中")
 		}
 
@@ -65,6 +85,7 @@ func (il *IPLimiter) isIPAllowed(ip string, whitelist []string, networks []strin
 	// 检查精确匹配
 	for _, allowedIP := range whitelist {
 		if ip == allowedIP {
+			utils.Debug("IP精确匹配白名单", zap.String("ip", ip), zap.String("allowed_ip", allowedIP))
 			return true
 		}
 	}
@@ -72,15 +93,18 @@ func (il *IPLimiter) isIPAllowed(ip string, whitelist []string, networks []strin
 	// 检查CIDR网络匹配
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil {
+		utils.Debug("无效的IP地址格式", zap.String("ip", ip))
 		return false
 	}
 
 	for _, network := range networks {
 		_, ipNet, err := net.ParseCIDR(network)
 		if err != nil {
+			utils.Debug("无效的CIDR网络格式", zap.String("network", network), zap.Error(err))
 			continue
 		}
 		if ipNet.Contains(parsedIP) {
+			utils.Debug("IP匹配CIDR网络", zap.String("ip", ip), zap.String("network", network))
 			return true
 		}
 	}
@@ -92,6 +116,7 @@ func (il *IPLimiter) isIPAllowed(ip string, whitelist []string, networks []strin
 func (il *IPLimiter) isIPBlocked(ip string, blacklist []string) bool {
 	for _, blockedIP := range blacklist {
 		if ip == blockedIP {
+			utils.Debug("IP在黑名单中", zap.String("ip", ip), zap.String("blocked_ip", blockedIP))
 			return true
 		}
 	}

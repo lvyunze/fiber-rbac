@@ -13,6 +13,9 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
 - User registration and login
 - Support for multiple databases (SQLite, MySQL, PostgreSQL)
 - IP access control (whitelist/blacklist)
+- Role-based access control
+- User-Role association management
+- Role-Permission association management
 - Unified API response format
 
 ## Getting Started
@@ -34,6 +37,20 @@ This is a Role-Based Access Control (RBAC) service built using Go Fiber. It supp
    ```bash
    go mod tidy
    ```
+
+### Examples
+The project includes example code to demonstrate the usage of various components:
+
+1. Logger Example (`examples/logger/main.go`):
+   - Shows how to initialize and use the logging system
+   - Demonstrates different log levels (debug, info, warn, error)
+   - Shows structured logging with additional fields
+   - Illustrates log output to console and files
+
+To run an example:
+```bash
+go run examples/logger/main.go
+```
 
 ### Configuration
 Edit the `config.yaml` file to configure your database settings, IP restrictions, and JWT secret:
@@ -92,6 +109,12 @@ go run main.go
 - `PUT /api/v1/users/:id`: Update a user
 - `DELETE /api/v1/users/:id`: Delete a user
 
+### User-Role Management
+- `POST /api/v1/users/:id/roles`: Assign roles to a user
+- `DELETE /api/v1/users/:id/roles`: Remove roles from a user
+- `GET /api/v1/users/:id/roles`: Get all roles for a user
+- `GET /api/v1/users/:id/has-role/:role`: Check if a user has a specific role
+
 ### Roles
 - `POST /api/v1/roles`: Create a new role
 - `GET /api/v1/roles`: Get all roles
@@ -99,12 +122,91 @@ go run main.go
 - `PUT /api/v1/roles/:id`: Update a role
 - `DELETE /api/v1/roles/:id`: Delete a role
 
+### Role-Permission Management
+- `POST /api/v1/roles/:id/permissions`: Assign permissions to a role
+- `DELETE /api/v1/roles/:id/permissions`: Remove permissions from a role
+- `GET /api/v1/roles/:id/permissions`: Get all permissions for a role
+- `GET /api/v1/roles/:id/has-permission/:permission`: Check if a role has a specific permission
+
 ### Permissions
 - `POST /api/v1/permissions`: Create a new permission
 - `GET /api/v1/permissions`: Get all permissions
 - `GET /api/v1/permissions/:id`: Get a permission by ID
 - `PUT /api/v1/permissions/:id`: Update a permission
 - `DELETE /api/v1/permissions/:id`: Delete a permission
+
+## RBAC Permission System
+
+### User-Role Management
+
+#### Assigning Roles to a User
+Send a POST request to `/api/v1/users/:id/roles` with the following JSON body:
+```json
+{
+  "role_ids": [1, 2, 3]
+}
+```
+
+#### Removing Roles from a User
+Send a DELETE request to `/api/v1/users/:id/roles` with the following JSON body:
+```json
+{
+  "role_ids": [2, 3]
+}
+```
+
+#### Getting All Roles for a User
+Send a GET request to `/api/v1/users/:id/roles`.
+
+#### Checking if a User Has a Specific Role
+Send a GET request to `/api/v1/users/:id/has-role/:role`.
+
+### Role-Permission Management
+
+#### Assigning Permissions to a Role
+Send a POST request to `/api/v1/roles/:id/permissions` with the following JSON body:
+```json
+{
+  "permission_ids": [1, 2, 3]
+}
+```
+
+#### Removing Permissions from a Role
+Send a DELETE request to `/api/v1/roles/:id/permissions` with the following JSON body:
+```json
+{
+  "permission_ids": [2, 3]
+}
+```
+
+#### Getting All Permissions for a Role
+Send a GET request to `/api/v1/roles/:id/permissions`.
+
+#### Checking if a Role Has a Specific Permission
+Send a GET request to `/api/v1/roles/:id/has-permission/:permission`.
+
+### Permission Middleware
+
+The system provides several middleware options for permission control:
+
+1. `RequireRole`: Requires the user to have a specific role
+2. `RequirePermission`: Requires the user to have a specific permission
+3. `RequireAnyRole`: Requires the user to have any of the specified roles
+4. `RequireAllRoles`: Requires the user to have all of the specified roles
+5. `RequireAnyPermission`: Requires the user to have any of the specified permissions
+
+These middlewares can be applied to routes, for example:
+
+```go
+// Only allow admins
+app.Get("/admin", middleware.RequireRole(userService, "admin"), adminHandler)
+
+// Only allow users with the permission to create users
+app.Post("/users", middleware.RequirePermission(userService, roleService, "user:create"), createUserHandler)
+
+// Allow either admins or editors
+app.Get("/content", middleware.RequireAnyRole(userService, "admin", "editor"), getContentHandler)
+```
 
 ## Authentication Flow
 
@@ -228,10 +330,10 @@ This project is licensed under the MIT License.
 
 ## Upcoming Features
 - ~~JWT authentication implementation~~ (Implemented)
-- User-Role association management
-- Role-Permission association management
+- ~~User-Role association management~~ (Implemented)
+- ~~Role-Permission association management~~ (Implemented)
 - ~~Request rate limiting~~ (IP access control implemented)
-- Logging functionality
+- ~~Logging functionality~~ (Implemented)
 - ~~Unit and integration tests~~ (Comprehensive tests implemented)
 - Docker containerization
 

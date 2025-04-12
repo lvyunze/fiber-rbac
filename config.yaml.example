@@ -1,1 +1,85 @@
- 
+server:
+  port: 8080  # 应用服务端口
+  jwt_secret: "your-secret-key"  # JWT签名密钥
+  jwt_expiration: 24  # JWT令牌过期时间(小时)
+  refresh_expiration: 72  # 刷新令牌过期时间(小时)
+
+database:
+  type: "sqlite"  # 可选: sqlite, mysql, postgres
+  sqlite:
+    file: "fiber-rbac.db"  # SQLite数据库文件路径
+  mysql:
+    host: "localhost"  # MySQL主机地址
+    port: 3306  # MySQL端口
+    user: "root"  # MySQL用户名
+    password: "password"  # MySQL密码
+    dbname: "fiber_rbac"  # MySQL数据库名
+    charset: "utf8mb4"  # 字符集
+    parse_time: true  # 解析时间
+    loc: "Local"  # 时区
+  postgres:
+    host: "localhost"  # PostgreSQL主机地址
+    port: 5432  # PostgreSQL端口
+    user: "postgres"  # PostgreSQL用户名
+    password: "password"  # PostgreSQL密码
+    dbname: "fiber_rbac"  # PostgreSQL数据库名
+    sslmode: "disable"  # SSL模式
+
+# 日志配置
+logger:
+  level: "info"  # 日志级别: debug, info, warn, error
+  file_path: "logs/fiber-rbac.log"  # 日志文件路径，留空则只输出到控制台
+  max_size: 10  # 日志文件最大大小(MB)
+  max_backups: 5  # 最大备份数量
+  max_age: 30  # 最大保留天数
+  compress: true  # 是否压缩
+  format: "json"  # 日志格式: json, text
+
+# IP限制配置
+ip_limit:
+  enabled: true  # 是否启用IP限制
+  max_requests: 100  # 单位时间内最大请求数
+  expiration: 60  # 限制计数重置时间(秒)
+  whitelist_mode: false  # 是否启用白名单模式
+  whitelist:  # IP白名单，白名单模式下只有这些IP可以访问
+    - "127.0.0.1"
+    - "192.168.1.0/24"
+  blacklist:  # IP黑名单，这些IP将被拒绝访问
+    - "10.0.0.0/8"
+  allowed_networks:  # 允许访问的网络
+    - "192.168.1.0/24"
+
+# 初始超级管理员配置
+admin:
+  username: "admin"  # 超级管理员用户名
+  password: "admin123"  # 超级管理员密码
+  email: "admin@example.com"  # 超级管理员邮箱
+
+# 认证配置
+auth:
+  password_min_length: 8  # 密码最小长度
+  password_max_length: 32  # 密码最大长度
+  password_require_number: true  # 密码是否必须包含数字
+  password_require_uppercase: true  # 密码是否必须包含大写字母
+  password_require_lowercase: true  # 密码是否必须包含小写字母
+  password_require_special: true  # 密码是否必须包含特殊字符
+
+# CORS配置
+cors:
+  enabled: true  # 是否启用CORS
+  allowed_origins:  # 允许的源
+    - "*"
+  allowed_methods:  # 允许的方法
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+  allowed_headers:  # 允许的请求头
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+  exposed_headers:  # 暴露的响应头
+    - "Content-Length"
+  allow_credentials: true  # 是否允许携带凭证
+  max_age: 86400  # 预检请求结果缓存时间(秒) 

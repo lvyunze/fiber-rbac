@@ -35,6 +35,11 @@ type Config struct {
 		} `mapstructure:"postgres"`
 	} `mapstructure:"database"`
 
+	Logger struct {
+		Level    string `mapstructure:"level"`     // 日志级别：debug, info, warn, error
+		FilePath string `mapstructure:"file_path"` // 日志文件路径
+	} `mapstructure:"logger"`
+
 	IPLimit struct {
 		Enabled         bool     `mapstructure:"enabled"`
 		WhitelistMode   bool     `mapstructure:"whitelist_mode"`

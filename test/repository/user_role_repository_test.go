@@ -57,9 +57,10 @@ func (s *UserRoleRepositoryTestSuite) randomString(prefix string) string {
 }
 
 func (s *UserRoleRepositoryTestSuite) createTestUser() *models.User {
+	username := s.randomString("user")
 	user := &models.User{
-		Username: s.randomString("user"),
-		Password: "hashedpassword",
+		Username: username,
+		Password: "password123",
 	}
 	err := s.userRepo.Create(user)
 	s.Require().NoError(err)

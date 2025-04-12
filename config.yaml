@@ -20,6 +20,11 @@ database:
     dbname: "fiber_rbac"
     sslmode: "disable"
 
+# 日志配置
+logger:
+  level: "info"  # 日志级别: debug, info, warn, error
+  file_path: "logs/fiber-rbac.log"  # 日志文件路径，留空则只输出到控制台
+
 # IP限制配置
 ip_limit:
   enabled: true
