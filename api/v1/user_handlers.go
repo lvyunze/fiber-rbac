@@ -16,6 +16,9 @@ func RegisterUserRoutes(router fiber.Router, userService service.UserService) {
 	users.Get("/:id", getUserByIDHandler(userService))
 	users.Put("/:id", updateUserByIDHandler(userService))
 	users.Delete("/:id", deleteUserByIDHandler(userService))
+
+	// 注册用户-角色关联管理路由
+	RegisterUserRoleRoutes(users, userService)
 }
 
 func createUserHandler(userService service.UserService) fiber.Handler {

@@ -13,6 +13,9 @@
 - 用户注册和登录
 - 支持多种数据库（SQLite、MySQL、PostgreSQL）
 - IP 访问控制（白名单/黑名单）
+- 基于角色和权限的访问控制
+- 用户-角色关联管理
+- 角色-权限关联管理
 - 统一的API响应格式
 
 ## 快速开始
@@ -92,6 +95,12 @@ go run main.go
 - `PUT /api/v1/users/:id`：更新用户
 - `DELETE /api/v1/users/:id`：删除用户
 
+### 用户-角色关联
+- `POST /api/v1/users/:id/roles`：为用户分配角色
+- `DELETE /api/v1/users/:id/roles`：移除用户的角色
+- `GET /api/v1/users/:id/roles`：获取用户的所有角色
+- `GET /api/v1/users/:id/has-role/:role`：检查用户是否拥有指定角色
+
 ### 角色
 - `POST /api/v1/roles`：创建新角色
 - `GET /api/v1/roles`：获取所有角色
@@ -99,12 +108,91 @@ go run main.go
 - `PUT /api/v1/roles/:id`：更新角色
 - `DELETE /api/v1/roles/:id`：删除角色
 
+### 角色-权限关联
+- `POST /api/v1/roles/:id/permissions`：为角色分配权限
+- `DELETE /api/v1/roles/:id/permissions`：移除角色的权限
+- `GET /api/v1/roles/:id/permissions`：获取角色的所有权限
+- `GET /api/v1/roles/:id/has-permission/:permission`：检查角色是否拥有指定权限
+
 ### 权限
 - `POST /api/v1/permissions`：创建新权限
 - `GET /api/v1/permissions`：获取所有权限
 - `GET /api/v1/permissions/:id`：根据 ID 获取权限
 - `PUT /api/v1/permissions/:id`：更新权限
 - `DELETE /api/v1/permissions/:id`：删除权限
+
+## RBAC 权限系统
+
+### 用户-角色管理
+
+#### 为用户分配角色
+向 `/api/v1/users/:id/roles` 发送 POST 请求，JSON 内容如下：
+```json
+{
+  "role_ids": [1, 2, 3]
+}
+```
+
+#### 移除用户的角色
+向 `/api/v1/users/:id/roles` 发送 DELETE 请求，JSON 内容如下：
+```json
+{
+  "role_ids": [2, 3]
+}
+```
+
+#### 获取用户的所有角色
+向 `/api/v1/users/:id/roles` 发送 GET 请求。
+
+#### 检查用户是否拥有指定角色
+向 `/api/v1/users/:id/has-role/:role` 发送 GET 请求。
+
+### 角色-权限管理
+
+#### 为角色分配权限
+向 `/api/v1/roles/:id/permissions` 发送 POST 请求，JSON 内容如下：
+```json
+{
+  "permission_ids": [1, 2, 3]
+}
+```
+
+#### 移除角色的权限
+向 `/api/v1/roles/:id/permissions` 发送 DELETE 请求，JSON 内容如下：
+```json
+{
+  "permission_ids": [2, 3]
+}
+```
+
+#### 获取角色的所有权限
+向 `/api/v1/roles/:id/permissions` 发送 GET 请求。
+
+#### 检查角色是否拥有指定权限
+向 `/api/v1/roles/:id/has-permission/:permission` 发送 GET 请求。
+
+### 权限中间件
+
+系统提供了多种权限控制中间件：
+
+1. `RequireRole`：要求用户拥有指定角色
+2. `RequirePermission`：要求用户拥有指定权限
+3. `RequireAnyRole`：要求用户拥有指定角色列表中的任意一个
+4. `RequireAllRoles`：要求用户拥有指定的所有角色
+5. `RequireAnyPermission`：要求用户拥有指定权限列表中的任意一个
+
+这些中间件可以应用于路由，例如：
+
+```go
+// 只允许管理员访问
+app.Get("/admin", middleware.RequireRole(userService, "admin"), adminHandler)
+
+// 只允许具有创建用户权限的用户访问
+app.Post("/users", middleware.RequirePermission(userService, roleService, "user:create"), createUserHandler)
+
+// 只允许管理员或编辑人员访问
+app.Get("/content", middleware.RequireAnyRole(userService, "admin", "editor"), getContentHandler)
+```
 
 ## 认证流程
 
@@ -228,9 +316,10 @@ fiber-rbac/
 
 ## 已实现和待实现功能
 - ~~JWT认证机制~~ (已实现)
-- 用户-角色关联管理
-- 角色-权限关联管理
+- ~~用户-角色关联管理~~ (已实现)
+- ~~角色-权限关联管理~~ (已实现)
 - ~~请求速率限制~~ (已实现IP访问控制)
+- ~~基于角色和权限的访问控制~~ (已实现)
 - 日志记录功能
 - ~~单元和集成测试~~ (已实现全面测试)
 - Docker容器化部署

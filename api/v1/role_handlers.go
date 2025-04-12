@@ -16,6 +16,9 @@ func RegisterRoleRoutes(router fiber.Router, roleService service.RoleService) {
 	roles.Get("/:id", getRoleByIDHandler(roleService))
 	roles.Put("/:id", updateRoleByIDHandler(roleService))
 	roles.Delete("/:id", deleteRoleByIDHandler(roleService))
+
+	// 注册角色-权限关联管理路由
+	RegisterRolePermissionRoutes(roles, roleService)
 }
 
 func createRoleHandler(roleService service.RoleService) fiber.Handler {
