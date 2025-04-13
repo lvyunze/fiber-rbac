@@ -28,4 +28,5 @@ windsurf-diagnostics.txt
 
 # 操作系统文件
 .DS_Store
-Thumbs.db.windsurfrules
+Thumbs.db
+.windsurfrules
