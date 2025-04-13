@@ -1,0 +1,31 @@
+.vscode
+settings.json
+*.db
+*.log
+docs/
+windsurf-diagnostics.txt
+
+# 二进制文件
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# 测试二进制文件
+*.test
+
+# 输出文件
+*.out
+
+# 依赖目录
+/vendor/
+
+# IDE 文件
+.idea/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

@@ -1,0 +1,30 @@
+# RBAC 系统配置文件
+
+# 服务器配置
+server:
+  port: 8080
+  host: "0.0.0.0"
+  timeout: 30 # 超时时间（秒）
+
+# 数据库配置
+database:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  dbname: "rbac"
+  sslmode: "disable"
+  timezone: "Asia/Shanghai"
+
+# JWT配置
+jwt:
+  secret: "your-secret-key-here" # 生产环境中应使用更强的密钥
+  expire: 3600 # Token过期时间（秒）
+  refresh_expire: 604800 # 刷新Token过期时间（7天）
+
+# 日志配置
+log:
+  level: "info" # debug, info, warn, error
+  format: "json" # json, text
+  output: "console" # console, file
+  file: "logs/rbac.log" # 日志文件路径（当output为file时使用）
