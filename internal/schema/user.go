@@ -49,6 +49,11 @@ type GetUserRequest struct {
 	ID uint64 `json:"id" validate:"required"`
 }
 
+// UserDetailRequest 获取用户详情请求
+type UserDetailRequest struct {
+	ID uint64 `json:"id" validate:"required"`
+}
+
 // ListUserRequest 获取用户列表请求
 type ListUserRequest struct {
 	Page     int    `json:"page" validate:"omitempty,min=1"`
@@ -76,4 +81,14 @@ type RoleSimple struct {
 type ListUserResponse struct {
 	Total int64          `json:"total"`
 	Items []UserResponse `json:"items"`
+}
+
+// UserDeleteRequest 删除用户请求
+type UserDeleteRequest struct {
+	ID uint64 `json:"id" validate:"required"`
+}
+
+// UserListRolesRequest 获取用户角色列表请求
+type UserListRolesRequest struct {
+	ID uint64 `json:"id" validate:"required"`
 }

@@ -25,35 +25,35 @@ func RegisterRoutes(app *fiber.App, userService service.UserService, roleService
 	// 需要认证的路由组
 	authRequired := api.Use(middleware.Auth(jwtConfig))
 
-	// 用户个人信息
-	authGroup.Get("/profile", middleware.Auth(jwtConfig), auth.NewProfileHandler(userService).Handle)
+	// 用户个人信息和权限检查
+	authGroup.Post("/profile", middleware.Auth(jwtConfig), auth.NewProfileHandler(userService).Handle)
 	authGroup.Post("/check-permission", middleware.Auth(jwtConfig), auth.NewCheckHandler(userService).Handle)
 
 	// 用户管理
 	userGroup := authRequired.Group("/users")
-	userGroup.Get("/", user.NewListHandler(userService).Handle)
-	userGroup.Post("/", user.NewCreateHandler(userService).Handle)
-	userGroup.Get("/:id", user.NewDetailHandler(userService).Handle)
-	userGroup.Put("/:id", user.NewUpdateHandler(userService).Handle)
-	userGroup.Delete("/:id", user.NewDeleteHandler(userService).Handle)
-	userGroup.Post("/:id/roles", user.NewAssignRoleHandler(userService).Handle)
-	userGroup.Get("/:id/roles", user.NewListRolesHandler(userService).Handle)
+	userGroup.Post("/list", user.NewListHandler(userService).Handle)
+	userGroup.Post("/create", user.NewCreateHandler(userService).Handle)
+	userGroup.Post("/detail", user.NewDetailHandler(userService).Handle)
+	userGroup.Post("/update", user.NewUpdateHandler(userService).Handle)
+	userGroup.Post("/delete", user.NewDeleteHandler(userService).Handle)
+	userGroup.Post("/assign-roles", user.NewAssignRoleHandler(userService).Handle)
+	userGroup.Post("/list-roles", user.NewListRolesHandler(userService).Handle)
 
 	// 角色管理
 	roleGroup := authRequired.Group("/roles")
-	roleGroup.Get("/", role.NewListHandler(roleService).Handle)
-	roleGroup.Post("/", role.NewCreateHandler(roleService).Handle)
-	roleGroup.Get("/:id", role.NewDetailHandler(roleService).Handle)
-	roleGroup.Put("/:id", role.NewUpdateHandler(roleService).Handle)
-	roleGroup.Delete("/:id", role.NewDeleteHandler(roleService).Handle)
-	roleGroup.Post("/:id/permissions", role.NewAssignPermissionHandler(roleService).Handle)
-	roleGroup.Get("/:id/permissions", role.NewListPermissionsHandler(roleService).Handle)
+	roleGroup.Post("/list", role.NewListHandler(roleService).Handle)
+	roleGroup.Post("/create", role.NewCreateHandler(roleService).Handle)
+	roleGroup.Post("/detail", role.NewDetailHandler(roleService).Handle)
+	roleGroup.Post("/update", role.NewUpdateHandler(roleService).Handle)
+	roleGroup.Post("/delete", role.NewDeleteHandler(roleService).Handle)
+	roleGroup.Post("/assign-permissions", role.NewAssignPermissionHandler(roleService).Handle)
+	roleGroup.Post("/list-permissions", role.NewListPermissionsHandler(roleService).Handle)
 
 	// 权限管理
 	permissionGroup := authRequired.Group("/permissions")
-	permissionGroup.Get("/", permission.NewListHandler(permissionService).Handle)
-	permissionGroup.Post("/", permission.NewCreateHandler(permissionService).Handle)
-	permissionGroup.Get("/:id", permission.NewDetailHandler(permissionService).Handle)
-	permissionGroup.Put("/:id", permission.NewUpdateHandler(permissionService).Handle)
-	permissionGroup.Delete("/:id", permission.NewDeleteHandler(permissionService).Handle)
+	permissionGroup.Post("/list", permission.NewListHandler(permissionService).Handle)
+	permissionGroup.Post("/create", permission.NewCreateHandler(permissionService).Handle)
+	permissionGroup.Post("/detail", permission.NewDetailHandler(permissionService).Handle)
+	permissionGroup.Post("/update", permission.NewUpdateHandler(permissionService).Handle)
+	permissionGroup.Post("/delete", permission.NewDeleteHandler(permissionService).Handle)
 }

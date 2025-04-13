@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
+	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
+	"github.com/lvyunze/fiber-rbac/internal/schema"
 	"github.com/lvyunze/fiber-rbac/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +25,16 @@ func NewDeleteHandler(roleService service.RoleService) *DeleteHandler {
 
 // Handle 处理删除角色请求
 func (h *DeleteHandler) Handle(c *fiber.Ctx) error {
-	// 解析角色ID
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
-	if err != nil {
-		return response.Fail(c, response.CodeParamError, "无效的角色ID")
+	// 解析请求参数
+	req := new(schema.DeleteRoleRequest)
+	if err := validator.ValidateRequest(c, req); err != nil {
+		return err
 	}
 
 	// 调用服务层删除角色
-	err = h.roleService.Delete(id)
+	err := h.roleService.Delete(req.ID)
 	if err != nil {
-		slog.Error("删除角色失败", "id", id, "error", err)
+		slog.Error("删除角色失败", "id", req.ID, "error", err)
 		
 		// 处理特定错误类型
 		switch err {

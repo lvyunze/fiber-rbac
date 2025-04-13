@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
+	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
+	"github.com/lvyunze/fiber-rbac/internal/schema"
 	"github.com/lvyunze/fiber-rbac/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +25,16 @@ func NewDeleteHandler(permissionService service.PermissionService) *DeleteHandle
 
 // Handle 处理删除权限请求
 func (h *DeleteHandler) Handle(c *fiber.Ctx) error {
-	// 解析权限ID
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
-	if err != nil {
-		return response.Fail(c, response.CodeParamError, "无效的权限ID")
+	// 解析请求参数
+	req := new(schema.DeletePermissionRequest)
+	if err := validator.ValidateRequest(c, req); err != nil {
+		return err
 	}
 
 	// 调用服务层删除权限
-	err = h.permissionService.Delete(id)
+	err := h.permissionService.Delete(req.ID)
 	if err != nil {
-		slog.Error("删除权限失败", "id", id, "error", err)
+		slog.Error("删除权限失败", "id", req.ID, "error", err)
 		
 		// 处理特定错误类型
 		switch err {

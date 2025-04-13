@@ -17,6 +17,11 @@ type UpdateRoleRequest struct {
 	PermissionIDs []uint64 `json:"permission_ids" validate:"omitempty"`
 }
 
+// RoleDeleteRequest 删除角色请求
+type RoleDeleteRequest struct {
+	ID uint64 `json:"id" validate:"required"`
+}
+
 // DeleteRoleRequest 
 type DeleteRoleRequest struct {
 	ID uint64 `json:"id" validate:"required"`
@@ -32,6 +37,16 @@ type ListRoleRequest struct {
 	Page     int    `json:"page" validate:"omitempty,min=1"`
 	PageSize int    `json:"page_size" validate:"omitempty,min=1,max=100"`
 	Keyword  string `json:"keyword" validate:"omitempty"`
+}
+
+// RoleDetailRequest 获取角色详情请求
+type RoleDetailRequest struct {
+	ID uint64 `json:"id" validate:"required"`
+}
+
+// RoleListPermissionsRequest 获取角色权限列表请求
+type RoleListPermissionsRequest struct {
+	ID uint64 `json:"id" validate:"required"`
 }
 
 // RoleResponse 

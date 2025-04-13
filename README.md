@@ -1,10 +1,8 @@
-# RBAC Backend System
+# Fiber-RBAC Backend System
 
 A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fiber framework.
 
-[中文文档](./README_CN.md)
-
-## Features
+## Core Features
 
 - **User Management**: Create, read, update, and delete users
 - **Role Management**: Create, read, update, and delete roles
@@ -12,7 +10,7 @@ A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fi
 - **Role-Permission Association**: Assign permissions to roles
 - **User-Role Association**: Assign roles to users
 - **JWT Authentication**: Secure API access with JWT tokens
-- **RESTful API**: Follows RESTful API design principles
+- **Standardized API Design**: Follows OpenAPI specification with unified interface design
 - **Structured Logging**: Uses Go's built-in slog for structured logging
 - **Configuration Management**: Uses Viper for configuration management
 
@@ -29,10 +27,10 @@ A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fi
 ## Project Structure
 
 ```
-/rbac
+/fiber-rbac
 ├── cmd                 # Application entry points
 ├── config              # Configuration files and package
-├── docs                # Documentation files
+├── docs                # Documentation files (including OpenAPI spec)
 ├── internal            # Internal packages
 │   ├── app             # Application setup (Fiber, middleware, router)
 │   ├── handler         # HTTP handlers
@@ -40,6 +38,7 @@ A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fi
 │   ├── model           # Data models
 │   ├── pkg             # Shared packages
 │   ├── repository      # Data access layer
+│   ├── schema          # Request/response structures
 │   └── service         # Business logic layer
 ├── scripts             # Utility scripts
 └── test                # Test files and utilities
@@ -58,8 +57,8 @@ A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fi
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/lvyunze/rbac.git
-cd rbac
+git clone https://github.com/lvyunze/fiber-rbac.git
+cd fiber-rbac
 ```
 
 2. Install dependencies:
@@ -98,34 +97,41 @@ The API follows the OpenAPI specification. You can find the API documentation in
 
 - **Authentication**:
   - POST `/api/v1/auth/login`: User login
-  - GET `/api/v1/auth/me`: Get current user information
+  - POST `/api/v1/auth/refresh`: Refresh token
+  - POST `/api/v1/auth/profile`: Get current user information
+  - POST `/api/v1/auth/check-permission`: Check permission
 
-- **Users**:
-  - GET `/api/v1/users`: List users
-  - POST `/api/v1/users`: Create user
-  - GET `/api/v1/users/:id`: Get user details
-  - PUT `/api/v1/users/:id`: Update user
-  - DELETE `/api/v1/users/:id`: Delete user
+- **User Management**:
+  - POST `/api/v1/users/list`: List users
+  - POST `/api/v1/users/create`: Create user
+  - POST `/api/v1/users/detail`: Get user details
+  - POST `/api/v1/users/update`: Update user
+  - POST `/api/v1/users/delete`: Delete user
+  - POST `/api/v1/users/assign-roles`: Assign roles to user
+  - POST `/api/v1/users/list-roles`: List user roles
 
-- **Roles**:
-  - GET `/api/v1/roles`: List roles
-  - POST `/api/v1/roles`: Create role
-  - GET `/api/v1/roles/:id`: Get role details
-  - PUT `/api/v1/roles/:id`: Update role
-  - DELETE `/api/v1/roles/:id`: Delete role
+- **Role Management**:
+  - POST `/api/v1/roles/list`: List roles
+  - POST `/api/v1/roles/create`: Create role
+  - POST `/api/v1/roles/detail`: Get role details
+  - POST `/api/v1/roles/update`: Update role
+  - POST `/api/v1/roles/delete`: Delete role
+  - POST `/api/v1/roles/assign-permissions`: Assign permissions to role
+  - POST `/api/v1/roles/list-permissions`: List role permissions
 
-- **Permissions**:
-  - GET `/api/v1/permissions`: List permissions
-  - POST `/api/v1/permissions`: Create permission
-  - GET `/api/v1/permissions/:id`: Get permission details
-  - PUT `/api/v1/permissions/:id`: Update permission
-  - DELETE `/api/v1/permissions/:id`: Delete permission
+- **Permission Management**:
+  - POST `/api/v1/permissions/list`: List permissions
+  - POST `/api/v1/permissions/create`: Create permission
+  - POST `/api/v1/permissions/detail`: Get permission details
+  - POST `/api/v1/permissions/update`: Update permission
+  - POST `/api/v1/permissions/delete`: Delete permission
 
-- **Role-Permission Management**:
-  - POST `/api/v1/roles/:id/permissions`: Assign permissions to role
+## API Design Features
 
-- **User-Role Management**:
-  - POST `/api/v1/users/:id/roles`: Assign roles to user
+- **Unified Request Method**: All endpoints use POST method, simplifying frontend calls
+- **Request Body Parameter Passing**: All parameters are passed through request body instead of path parameters, enhancing security
+- **Standardized Error Handling**: Unified error response format for easier frontend handling
+- **Structured Request Validation**: Each endpoint has a corresponding request structure, ensuring consistent parameter validation
 
 ## Testing
 

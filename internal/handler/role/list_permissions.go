@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
+	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
+	"github.com/lvyunze/fiber-rbac/internal/schema"
 	"github.com/lvyunze/fiber-rbac/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +25,16 @@ func NewListPermissionsHandler(roleService service.RoleService) *ListPermissions
 
 // Handle 处理获取角色权限列表请求
 func (h *ListPermissionsHandler) Handle(c *fiber.Ctx) error {
-	// 解析角色ID
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
-	if err != nil {
-		return response.Fail(c, response.CodeParamError, "无效的角色ID")
+	// 解析请求参数
+	req := new(schema.RoleListPermissionsRequest)
+	if err := validator.ValidateRequest(c, req); err != nil {
+		return err
 	}
 
 	// 调用服务层获取角色权限列表
-	permissions, err := h.roleService.GetPermissions(id)
+	permissions, err := h.roleService.GetPermissions(req.ID)
 	if err != nil {
-		slog.Error("获取角色权限列表失败", "id", id, "error", err)
+		slog.Error("获取角色权限列表失败", "id", req.ID, "error", err)
 		
 		// 处理特定错误类型
 		if err == errors.ErrRoleNotFound {

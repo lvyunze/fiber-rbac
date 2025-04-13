@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
+	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
+	"github.com/lvyunze/fiber-rbac/internal/schema"
 	"github.com/lvyunze/fiber-rbac/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +25,16 @@ func NewDetailHandler(userService service.UserService) *DetailHandler {
 
 // Handle 处理获取用户详情请求
 func (h *DetailHandler) Handle(c *fiber.Ctx) error {
-	// 解析用户ID
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
-	if err != nil {
-		return response.Fail(c, response.CodeParamError, "无效的用户ID")
+	// 解析请求参数
+	req := new(schema.UserDetailRequest)
+	if err := validator.ValidateRequest(c, req); err != nil {
+		return err
 	}
 
 	// 调用服务层获取用户详情
-	user, err := h.userService.GetByID(id)
+	user, err := h.userService.GetByID(req.ID)
 	if err != nil {
-		slog.Error("获取用户详情失败", "id", id, "error", err)
+		slog.Error("获取用户详情失败", "id", req.ID, "error", err)
 		
 		// 处理特定错误类型
 		if err == errors.ErrUserNotFound {

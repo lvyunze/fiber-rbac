@@ -4,8 +4,9 @@ import (
 	"log/slog"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
+	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
+	"github.com/lvyunze/fiber-rbac/internal/schema"
 	"github.com/lvyunze/fiber-rbac/internal/service"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -24,16 +25,16 @@ func NewDeleteHandler(userService service.UserService) *DeleteHandler {
 
 // Handle 处理删除用户请求
 func (h *DeleteHandler) Handle(c *fiber.Ctx) error {
-	// 解析用户ID
-	id, err := strconv.ParseUint(c.Params("id"), 10, 64)
-	if err != nil {
-		return response.Fail(c, response.CodeParamError, "无效的用户ID")
+	// 解析请求参数
+	req := new(schema.UserDeleteRequest)
+	if err := validator.ValidateRequest(c, req); err != nil {
+		return err
 	}
 
 	// 调用服务层删除用户
-	err = h.userService.Delete(id)
+	err := h.userService.Delete(req.ID)
 	if err != nil {
-		slog.Error("删除用户失败", "id", id, "error", err)
+		slog.Error("删除用户失败", "id", req.ID, "error", err)
 		
 		// 处理特定错误类型
 		if err == errors.ErrUserNotFound {
