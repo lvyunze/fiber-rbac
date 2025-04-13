@@ -4,25 +4,41 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"github.com/lvyunze/fiber-rbac/config"
 	"strings"
+
+	"github.com/lvyunze/fiber-rbac/config"
 )
 
 // Setup 初始化日志配置
-func Setup(cfg *config.LogConfig) *slog.Logger {
+func Setup(cfg *config.LogConfig, env string) *slog.Logger {
 	// 设置日志级别
 	var level slog.Level
-	switch strings.ToLower(cfg.Level) {
-	case "debug":
-		level = slog.LevelDebug
-	case "info":
-		level = slog.LevelInfo
-	case "warn":
+
+	// 根据环境设置日志级别
+	switch env {
+	case "prod":
+		// 生产环境只输出警告和错误日志
 		level = slog.LevelWarn
-	case "error":
-		level = slog.LevelError
+	case "uat":
+		// UAT环境只输出警告和错误日志
+		level = slog.LevelWarn
+	case "qa":
+		// QA环境输出所有日志
+		level = slog.LevelDebug
 	default:
-		level = slog.LevelInfo
+		// 开发环境根据配置文件设置
+		switch strings.ToLower(cfg.Level) {
+		case "debug":
+			level = slog.LevelDebug
+		case "info":
+			level = slog.LevelInfo
+		case "warn":
+			level = slog.LevelWarn
+		case "error":
+			level = slog.LevelError
+		default:
+			level = slog.LevelInfo
+		}
 	}
 
 	// 设置日志输出位置
@@ -59,6 +75,13 @@ func Setup(cfg *config.LogConfig) *slog.Logger {
 	// 创建并设置全局日志记录器
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
+
+	// 输出日志设置信息
+	logger.Info("日志初始化完成",
+		"env", env,
+		"level", level.String(),
+		"format", cfg.Format,
+		"output", cfg.Output)
 
 	return logger
 }

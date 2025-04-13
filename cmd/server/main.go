@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// 初始化日志
-	logger.Setup(&cfg.Log)
+	logger.Setup(&cfg.Log, cfg.Env)
 
 	// 初始化数据库
 	err = model.InitDB(&cfg.Database)

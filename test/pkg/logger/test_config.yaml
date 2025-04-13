@@ -1,0 +1,11 @@
+# 测试配置文件
+
+# 环境配置 (dev, qa, prod)
+env: "dev"
+
+# 日志配置
+log:
+  level: "info" # debug, info, warn, error
+  format: "json" # json, text
+  output: "console" # console, file
+  file: "logs/test.log" # 日志文件路径（当output为file时使用）

@@ -10,6 +10,7 @@ import (
 
 // Config 应用配置结构体
 type Config struct {
+	Env      string         `mapstructure:"env"`
 	Server   ServerConfig   `mapstructure:"server"`
 	Database DatabaseConfig `mapstructure:"database"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
@@ -85,6 +86,11 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, fmt.Errorf("解析配置文件失败: %w", err)
 	}
 
-	slog.Info("配置文件加载成功", "path", configPath)
+	// 设置默认环境
+	if config.Env == "" {
+		config.Env = "dev"
+	}
+
+	slog.Info("配置文件加载成功", "path", configPath, "env", config.Env)
 	return &config, nil
 }
