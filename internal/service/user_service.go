@@ -14,7 +14,7 @@ import (
 // UserService 用户服务接口
 type UserService interface {
 	Login(req *schema.LoginRequest) (*schema.LoginResponse, error)
-	RefreshToken(req *schema.RefreshTokenRequest) (*schema.LoginResponse, error)
+	RefreshToken(token string) (*schema.LoginResponse, error)
 	CheckPermission(userID uint64, permission string) (bool, error)
 	GetProfile(userID uint64) (*schema.UserResponse, error)
 	Create(req *schema.CreateUserRequest) (uint64, error)
@@ -75,22 +75,23 @@ func (s *userService) Login(req *schema.LoginRequest) (*schema.LoginResponse, er
 	}
 
 	// 生成JWT令牌
-	accessToken, _, err := s.tokenService.GenerateTokenPair(user.ID, user.Username)
+	accessToken, refreshToken, err := s.tokenService.GenerateTokenPair(user.ID, user.Username)
 	if err != nil {
 		slog.Error("生成令牌失败", "error", err)
 		return nil, err
 	}
 
 	return &schema.LoginResponse{
-		Token:     accessToken,
-		ExpiresIn: s.tokenService.Config.Expire,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    s.tokenService.Config.Expire,
 	}, nil
 }
 
 // RefreshToken 刷新令牌
-func (s *userService) RefreshToken(req *schema.RefreshTokenRequest) (*schema.LoginResponse, error) {
+func (s *userService) RefreshToken(token string) (*schema.LoginResponse, error) {
 	// 验证刷新令牌
-	claims, err := s.tokenService.ValidateToken(req.RefreshToken)
+	claims, err := s.tokenService.ValidateToken(token)
 	if err != nil {
 		return nil, err
 	}

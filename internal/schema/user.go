@@ -6,10 +6,11 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required,min=6"`
 }
 
-// LoginResponse 用户登录响应
+// LoginResponse 登录响应
 type LoginResponse struct {
-	Token     string `json:"token"`
-	ExpiresIn int    `json:"expires_in"`
+	Token        string `json:"token"`         // 访问令牌
+	RefreshToken string `json:"refresh_token"` // 刷新令牌
+	ExpiresIn    int    `json:"expires_in"`    // 过期时间（秒）
 }
 
 // RefreshTokenRequest 刷新令牌请求

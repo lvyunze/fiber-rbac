@@ -2,6 +2,8 @@ package auth
 
 import (
 	"log/slog"
+	"strings"
+	
 	"github.com/lvyunze/fiber-rbac/internal/pkg/response"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/validator"
 	"github.com/lvyunze/fiber-rbac/internal/schema"
@@ -29,9 +31,33 @@ func (h *RefreshHandler) Handle(c *fiber.Ctx) error {
 	if err := validator.ValidateRequest(c, req); err != nil {
 		return err
 	}
+	
+	var token string
+	
+	// 优先从请求体获取刷新令牌
+	if req.RefreshToken != "" {
+		token = req.RefreshToken
+	} else {
+		// 从 Authorization 头中获取令牌作为备选
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return response.Fail(c, response.CodeUnauthorized, "未提供刷新令牌")
+		}
+		
+		// 解析 Bearer 令牌
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			return response.Fail(c, response.CodeUnauthorized, "授权头格式无效")
+		}
+		
+		token = parts[1]
+		if token == "" {
+			return response.Fail(c, response.CodeUnauthorized, "未提供令牌")
+		}
+	}
 
 	// 调用服务层刷新令牌
-	res, err := h.userService.RefreshToken(req)
+	res, err := h.userService.RefreshToken(token)
 	if err != nil {
 		slog.Error("刷新令牌失败", "error", err)
 		return response.Fail(c, response.CodeUnauthorized, "无效的刷新令牌")
