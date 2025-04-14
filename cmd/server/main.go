@@ -30,7 +30,7 @@ func main() {
 	logger.Setup(&cfg.Log, cfg.Env)
 
 	// 初始化数据库
-	err = model.InitDB(&cfg.Database)
+	err = model.InitDB(&cfg.Database, cfg.Env)
 	if err != nil {
 		slog.Error("数据库连接失败", "error", err)
 		os.Exit(1)
@@ -38,12 +38,6 @@ func main() {
 
 	// 获取数据库连接
 	db := model.GetDB()
-
-	// 数据库迁移
-	if err := model.AutoMigrate(db); err != nil {
-		slog.Error("数据库迁移失败", "error", err)
-		os.Exit(1)
-	}
 
 	// 初始化默认数据
 	if err := model.InitDefaultData(db); err != nil {

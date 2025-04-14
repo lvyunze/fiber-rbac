@@ -18,7 +18,7 @@ func main() {
 	}
 
 	// 初始化数据库
-	err = model.InitDB(&cfg.Database)
+	err = model.InitDB(&cfg.Database, cfg.Env)
 	if err != nil {
 		fmt.Printf("数据库连接失败: %v\n", err)
 		os.Exit(1)

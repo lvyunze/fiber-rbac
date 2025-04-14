@@ -3,8 +3,9 @@ package model
 import (
 	"fmt"
 	"log/slog"
-	"github.com/lvyunze/fiber-rbac/config"
 	"time"
+
+	"github.com/lvyunze/fiber-rbac/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,13 +17,31 @@ import (
 var DB *gorm.DB
 
 // InitDB 初始化数据库连接
-func InitDB(cfg *config.DatabaseConfig) error {
+func InitDB(cfg *config.DatabaseConfig, env string) error {
+	// 根据环境设置数据库日志级别
+	var logLevel logger.LogLevel
+	var logLevelName string
+	switch env {
+	case "prod", "uat":
+		// 生产和UAT环境只记录错误
+		logLevel = logger.Error
+		logLevelName = "ERROR"
+	case "qa":
+		// QA环境记录所有SQL
+		logLevel = logger.Info
+		logLevelName = "INFO"
+	default:
+		// 开发环境默认记录所有SQL
+		logLevel = logger.Info
+		logLevelName = "INFO"
+	}
+
 	// 配置GORM
 	gormConfig := &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // 使用单数表名
 		},
-		Logger: logger.Default.LogMode(logger.Info), // 开发环境下设置详细日志
+		Logger: logger.Default.LogMode(logLevel), // 根据环境设置日志级别
 	}
 
 	// 连接数据库
@@ -44,29 +63,24 @@ func InitDB(cfg *config.DatabaseConfig) error {
 	sqlDB.SetConnMaxIdleTime(30 * time.Minute) // 空闲连接最大生命周期
 
 	// 自动迁移数据库模式
-	if err := autoMigrate(db); err != nil {
-		return fmt.Errorf("自动迁移数据库模式失败: %w", err)
-	}
-
-	// 设置全局DB实例
-	DB = db
-	slog.Info("数据库连接初始化成功")
-	return nil
-}
-
-// 自动迁移数据库模式
-func autoMigrate(db *gorm.DB) error {
-	// 注册要迁移的模型
-	return db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&User{},
 		&Role{},
 		&Permission{},
 		&UserRole{},
 		&RolePermission{},
-	)
+	); err != nil {
+		return fmt.Errorf("自动迁移数据库模式失败: %w", err)
+	}
+
+	// 设置全局变量
+	DB = db
+
+	slog.Info("数据库连接初始化成功", "env", env, "log_level", logLevelName)
+	return nil
 }
 
-// GetDB 获取数据库连接实例
+// GetDB 获取数据库连接
 func GetDB() *gorm.DB {
 	return DB
 }
