@@ -15,6 +15,7 @@ type Config struct {
 	Database DatabaseConfig `mapstructure:"database"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
 	Log      LogConfig      `mapstructure:"log"`
+	Security SecurityConfig `mapstructure:"security"`
 }
 
 // ServerConfig 服务器配置
@@ -48,6 +49,12 @@ type LogConfig struct {
 	Format string `mapstructure:"format"`
 	Output string `mapstructure:"output"`
 	File   string `mapstructure:"file"`
+}
+
+// SecurityConfig 安全配置
+type SecurityConfig struct {
+	IPWhitelist []string `mapstructure:"ip_whitelist"`
+	EnableWhitelist bool `mapstructure:"enable_whitelist"`
 }
 
 // DSN 返回数据库连接字符串

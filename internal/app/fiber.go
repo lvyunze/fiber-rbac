@@ -2,13 +2,15 @@ package app
 
 import (
 	"log/slog"
-	"github.com/lvyunze/fiber-rbac/config"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	
+	"github.com/lvyunze/fiber-rbac/config"
+	"github.com/lvyunze/fiber-rbac/internal/middleware"
 )
 
 // NewFiberApp 创建并配置Fiber应用实例
@@ -25,16 +27,19 @@ func NewFiberApp(cfg *config.Config) *fiber.App {
 	})
 
 	// 注册中间件
-	registerMiddlewares(app)
+	registerMiddlewares(app, cfg)
 
 	slog.Info("Fiber应用初始化完成")
 	return app
 }
 
 // registerMiddlewares 注册全局中间件
-func registerMiddlewares(app *fiber.App) {
+func registerMiddlewares(app *fiber.App, cfg *config.Config) {
 	// 恢复中间件，用于捕获panic
 	app.Use(recover.New())
+
+	// IP白名单中间件
+	app.Use(middleware.IPWhitelist(&cfg.Security))
 
 	// CORS中间件，允许跨域请求
 	app.Use(cors.New(cors.Config{

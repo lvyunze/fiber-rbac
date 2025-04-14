@@ -10,6 +10,8 @@ A comprehensive Role-Based Access Control (RBAC) backend system built with Go Fi
 - **Role-Permission Association**: Assign permissions to roles
 - **User-Role Association**: Assign roles to users
 - **JWT Authentication**: Secure API access with JWT tokens
+- **IP Whitelist**: Control API access based on IP addresses and CIDR ranges
+- **Environment-Based Configuration**: Automatic adjustment of logging and database settings based on environment
 - **Standardized API Design**: Follows OpenAPI specification with unified interface design
 - **Structured Logging**: Uses Go's built-in slog for structured logging
 - **Configuration Management**: Uses Viper for configuration management
@@ -88,6 +90,61 @@ go run cmd/main.go
 - **Username**: admin
 - **Password**: admin123
 - **Email**: admin@example.com
+
+## Security Features
+
+### IP Whitelist
+
+The system includes an IP whitelist middleware that allows you to control access to your API based on client IP addresses:
+
+- **Enable/Disable**: Toggle IP-based access control via configuration
+- **IP Formats**: Support for both IPv4 and IPv6 addresses
+- **CIDR Support**: Define network ranges using CIDR notation
+- **Flexible Configuration**: Configure allowed IPs through the YAML config file
+
+To configure the IP whitelist, edit the `config/config.yaml` file:
+
+```yaml
+security:
+  enable_whitelist: true  # Set to false to disable IP filtering
+  ip_whitelist:
+    - "127.0.0.1"         # Allow localhost
+    - "::1"               # Allow IPv6 localhost
+    - "192.168.1.0/24"    # Allow an entire subnet
+```
+
+## Environment-Based Configuration
+
+The system automatically adjusts logging and database settings based on the current environment:
+
+### Environment Support
+
+- **dev**: Development environment
+- **qa**: Quality Assurance environment
+- **uat**: User Acceptance Testing environment
+- **prod**: Production environment
+
+### Logging Levels
+
+Log levels are automatically adjusted based on the environment:
+
+- **prod/uat**: Only warnings and errors (LevelWarn)
+- **qa**: All logs, including debug information (LevelDebug)
+- **dev**: Configurable via config file (default: LevelInfo)
+
+### Database Logging
+
+Database query logging is also environment-aware:
+
+- **prod/uat**: Only error logs (logger.Error)
+- **qa/dev**: All SQL queries (logger.Info)
+
+To configure the environment, set the `APP_ENV` environment variable or edit the `config/config.yaml` file:
+
+```yaml
+app:
+  env: dev  # Options: dev, qa, uat, prod
+```
 
 ## API Documentation
 
