@@ -206,7 +206,7 @@ go test ./...
 bash test/api_test.sh
 ```
 
-## 后期迭代计划建议
+## 后期迭代计划
 
 - **多端支持**：支持移动端/PC端多设备登录，refresh_token 增加 device 字段，便于管理多端会话。
 - **Token 黑名单与失效策略**：实现 refresh_token 主动失效（如用户主动退出、异常告警等），并支持黑名单机制。
