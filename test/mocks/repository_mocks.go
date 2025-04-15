@@ -155,6 +155,48 @@ func (m *MockRoleRepository) GetUsersByRoleID(roleID uint64) ([]*model.User, err
 	return args.Get(0).([]*model.User), args.Error(1)
 }
 
+// MockRefreshTokenRepository 刷新令牌仓库mock
+//go:generate mockery --name=RefreshTokenRepository --output=. --outpkg=mocks --case=underscore
+type MockRefreshTokenRepository struct {
+	mock.Mock
+}
+
+func (m *MockRefreshTokenRepository) Create(refreshToken *model.RefreshToken) error {
+	args := m.Called(refreshToken)
+	return args.Error(0)
+}
+
+func (m *MockRefreshTokenRepository) Update(refreshToken *model.RefreshToken) error {
+	args := m.Called(refreshToken)
+	return args.Error(0)
+}
+
+func (m *MockRefreshTokenRepository) Delete(id uint64) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+func (m *MockRefreshTokenRepository) GetByID(id uint64) (*model.RefreshToken, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*model.RefreshToken), args.Error(1)
+}
+
+func (m *MockRefreshTokenRepository) GetByToken(token string) (*model.RefreshToken, error) {
+	args := m.Called(token)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*model.RefreshToken), args.Error(1)
+}
+
+func (m *MockRefreshTokenRepository) List(page, pageSize int, keyword string) ([]*model.RefreshToken, int64, error) {
+	args := m.Called(page, pageSize, keyword)
+	return args.Get(0).([]*model.RefreshToken), args.Get(1).(int64), args.Error(2)
+}
+
 // MockPermissionRepository 权限仓库的模拟实现
 type MockPermissionRepository struct {
 	mock.Mock

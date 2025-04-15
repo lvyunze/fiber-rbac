@@ -188,7 +188,6 @@ The API follows the OpenAPI specification. You can find the API documentation in
 - **Unified Request Method**: All endpoints use POST method, simplifying frontend calls
 - **Request Body Parameter Passing**: All parameters are passed through request body instead of path parameters, enhancing security
 - **Standardized Error Handling**: Unified error response format for easier frontend handling
-- **Structured Request Validation**: Each endpoint has a corresponding request structure, ensuring consistent parameter validation
 
 ## Testing
 
@@ -204,6 +203,19 @@ For API testing, use the provided test script:
 bash test/api_test.sh
 ```
 
+## Future Iteration Roadmap
+
+- **Multi-device Support**: Allow login from multiple devices, add device field to refresh_token for session management.
+- **Token Blacklist/Invalidation**: Support active refresh_token invalidation (logout, anomaly alerts), and blacklist mechanism.
+- **Fine-grained RBAC**: Support resource/action-level permissions for complex enterprise needs.
+- **API Rate Limiting & Risk Control**: Integrate API rate limiting, anti-brute-force login, etc.
+- **Data Audit & Traceability**: Add audit logs for sensitive ops (permission/user changes) for compliance and tracing.
+- **Pluggable Auth Mechanisms**: Support OAuth2, LDAP, CAS, etc. for easy enterprise integration.
+- **Hot Config Reload**: Support config reload without restart to improve ops efficiency.
+- **Automated Testing & CI/CD**: Improve unit/integration tests, integrate CI to ensure branch quality.
+- **Internationalization (i18n)**: Support multi-language responses for global rollout.
+
+
 ## Contributing
 
 1. Fork the repository
@@ -215,3 +227,5 @@ bash test/api_test.sh
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+

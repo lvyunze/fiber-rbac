@@ -1,8 +1,8 @@
 .vscode
 settings.json
+docs/
 *.db
 *.log
-docs/
 windsurf-diagnostics.txt
 
 # 二进制文件

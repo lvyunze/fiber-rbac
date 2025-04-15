@@ -19,7 +19,7 @@ func TestUserService_Create(t *testing.T) {
 	tests := []struct {
 		name           string
 		request        *schema.CreateUserRequest
-		mockSetup      func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository)
+		mockSetup      func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository, mockRefreshTokenRepo *mocks.MockRefreshTokenRepository)
 		expectedID     uint64
 		expectedError  error
 		expectedCalled bool
@@ -31,7 +31,7 @@ func TestUserService_Create(t *testing.T) {
 				Email:    "test@example.com",
 				Password: "password123",
 			},
-			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository) {
+			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository, mockRefreshTokenRepo *mocks.MockRefreshTokenRepository) {
 				// u6a21u62dfu7528u6237u540du4e0du5b58u5728
 				mockUserRepo.On("GetByUsername", "testuser").Return(nil, nil)
 				
@@ -55,7 +55,7 @@ func TestUserService_Create(t *testing.T) {
 				Email:    "test@example.com",
 				Password: "password123",
 			},
-			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository) {
+			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository, mockRefreshTokenRepo *mocks.MockRefreshTokenRepository) {
 				// u6a21u62dfu7528u6237u540du5df2u5b58u5728
 				existingUser := &model.User{ID: 1, Username: "existinguser"}
 				mockUserRepo.On("GetByUsername", "existinguser").Return(existingUser, nil)
@@ -71,7 +71,7 @@ func TestUserService_Create(t *testing.T) {
 				Email:    "existing@example.com",
 				Password: "password123",
 			},
-			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository) {
+			mockSetup: func(mockUserRepo *mocks.MockUserRepository, mockRoleRepo *mocks.MockRoleRepository, mockPermRepo *mocks.MockPermissionRepository, mockRefreshTokenRepo *mocks.MockRefreshTokenRepository) {
 				// u6a21u62dfu7528u6237u540du4e0du5b58u5728
 				mockUserRepo.On("GetByUsername", "testuser").Return(nil, nil)
 				
@@ -93,9 +93,10 @@ func TestUserService_Create(t *testing.T) {
 			mockUserRepo := new(mocks.MockUserRepository)
 			mockRoleRepo := new(mocks.MockRoleRepository)
 			mockPermRepo := new(mocks.MockPermissionRepository)
+			mockRefreshTokenRepo := new(mocks.MockRefreshTokenRepository)
 			
 			// u8bbeu7f6eu6a21u62dfu884cu4e3a
-			tt.mockSetup(mockUserRepo, mockRoleRepo, mockPermRepo)
+			tt.mockSetup(mockUserRepo, mockRoleRepo, mockPermRepo, mockRefreshTokenRepo)
 			
 			// u521bu5efaJWTu914du7f6e
 			jwtConfig := &config.JWTConfig{
@@ -104,7 +105,7 @@ func TestUserService_Create(t *testing.T) {
 			}
 			
 			// u521bu5efau670du52a1u5b9eu4f8b
-			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, jwtConfig)
+			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, mockRefreshTokenRepo, jwtConfig)
 			
 			// u8c03u7528u88abu6d4bu8bd5u7684u65b9u6cd5
 			id, err := userService.Create(tt.request)
@@ -193,6 +194,7 @@ func TestUserService_Login(t *testing.T) {
 			mockUserRepo := new(mocks.MockUserRepository)
 			mockRoleRepo := new(mocks.MockRoleRepository)
 			mockPermRepo := new(mocks.MockPermissionRepository)
+			mockRefreshTokenRepo := new(mocks.MockRefreshTokenRepository)
 			
 			// u8bbeu7f6eu6a21u62dfu884cu4e3a
 			tt.mockSetup(mockUserRepo)
@@ -204,7 +206,7 @@ func TestUserService_Login(t *testing.T) {
 			}
 			
 			// u521bu5efau670du52a1u5b9eu4f8b
-			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, jwtConfig)
+			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, mockRefreshTokenRepo, jwtConfig)
 			
 			// u8c03u7528u88abu6d4bu8bd5u7684u65b9u6cd5
 			response, err := userService.Login(tt.request)
@@ -269,6 +271,7 @@ func TestUserService_GetProfile(t *testing.T) {
 			mockUserRepo := new(mocks.MockUserRepository)
 			mockRoleRepo := new(mocks.MockRoleRepository)
 			mockPermRepo := new(mocks.MockPermissionRepository)
+			mockRefreshTokenRepo := new(mocks.MockRefreshTokenRepository)
 			
 			// u8bbeu7f6eu6a21u62dfu884cu4e3a
 			tt.mockSetup(mockUserRepo)
@@ -280,7 +283,7 @@ func TestUserService_GetProfile(t *testing.T) {
 			}
 			
 			// u521bu5efau670du52a1u5b9eu4f8b
-			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, jwtConfig)
+			userService := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, mockRefreshTokenRepo, jwtConfig)
 			
 			// u8c03u7528u88abu6d4bu8bd5u7684u65b9u6cd5
 			user, err := userService.GetProfile(tt.userID)

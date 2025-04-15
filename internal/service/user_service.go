@@ -2,6 +2,7 @@ package service
 
 import (
 	"log/slog"
+	"time"
 	"github.com/lvyunze/fiber-rbac/config"
 	"github.com/lvyunze/fiber-rbac/internal/model"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/errors"
@@ -32,6 +33,7 @@ type userService struct {
 	roleRepo       repository.RoleRepository
 	permissionRepo repository.PermissionRepository
 	tokenService   *jwt.TokenService
+	refreshTokenRepo repository.RefreshTokenRepository
 }
 
 // NewUserService 创建用户服务实例
@@ -39,6 +41,7 @@ func NewUserService(
 	userRepo repository.UserRepository,
 	roleRepo repository.RoleRepository,
 	permissionRepo repository.PermissionRepository,
+	refreshTokenRepo repository.RefreshTokenRepository,
 	jwtConfig *config.JWTConfig,
 ) UserService {
 	return &userService{
@@ -46,6 +49,7 @@ func NewUserService(
 		roleRepo:       roleRepo,
 		permissionRepo: permissionRepo,
 		tokenService:   jwt.NewTokenService(jwtConfig),
+		refreshTokenRepo: refreshTokenRepo,
 	}
 }
 
@@ -81,6 +85,18 @@ func (s *userService) Login(req *schema.LoginRequest) (*schema.LoginResponse, er
 		return nil, err
 	}
 
+	// 保存refresh_token到数据库
+	expiresAt := time.Now().Add(time.Duration(s.tokenService.Config.RefreshExpire) * time.Second)
+	rt := &model.UserRefreshToken{
+		UserID:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: expiresAt,
+	}
+	if err := s.refreshTokenRepo.Create(rt); err != nil {
+		slog.Error("保存refresh_token失败", "error", err)
+		return nil, err
+	}
+
 	return &schema.LoginResponse{
 		Token:        accessToken,
 		RefreshToken: refreshToken,
@@ -90,13 +106,18 @@ func (s *userService) Login(req *schema.LoginRequest) (*schema.LoginResponse, er
 
 // RefreshToken 刷新令牌
 func (s *userService) RefreshToken(token string) (*schema.LoginResponse, error) {
-	// 验证刷新令牌
+	// 校验refresh_token在库中且未用未撤销未过期
+	rt, err := s.refreshTokenRepo.FindValid(token)
+	if err != nil || rt == nil {
+		return nil, errors.ErrInvalidTokenType
+	}
+
+	// 验证JWT内容
 	claims, err := s.tokenService.ValidateToken(token)
 	if err != nil {
 		return nil, err
 	}
 
-	// 检查令牌类型
 	if claims.TokenType != "refresh" {
 		return nil, errors.ErrInvalidTokenType
 	}
@@ -111,15 +132,32 @@ func (s *userService) RefreshToken(token string) (*schema.LoginResponse, error) 
 		return nil, errors.ErrUserNotFound
 	}
 
-	// 生成新令牌
-	accessToken, _, err := s.tokenService.GenerateTokenPair(user.ID, user.Username)
+	// 标记refresh_token为已用
+	if err := s.refreshTokenRepo.MarkUsed(token); err != nil {
+		slog.Error("标记refresh_token已用失败", "error", err)
+	}
+
+	// 生成新token对
+	accessToken, refreshToken, err := s.tokenService.GenerateTokenPair(user.ID, user.Username)
 	if err != nil {
 		return nil, err
 	}
 
+	expiresAt := time.Now().Add(time.Duration(s.tokenService.Config.RefreshExpire) * time.Second)
+	rtNew := &model.UserRefreshToken{
+		UserID:    user.ID,
+		Token:     refreshToken,
+		ExpiresAt: expiresAt,
+	}
+	if err := s.refreshTokenRepo.Create(rtNew); err != nil {
+		slog.Error("保存新refresh_token失败", "error", err)
+		return nil, err
+	}
+
 	return &schema.LoginResponse{
-		Token:     accessToken,
-		ExpiresIn: s.tokenService.Config.Expire,
+		Token:        accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    s.tokenService.Config.Expire,
 	}, nil
 }
 

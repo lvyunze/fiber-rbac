@@ -39,6 +39,12 @@ func main() {
 	// 获取数据库连接
 	db := model.GetDB()
 
+	// 自动迁移数据库表结构（服务启动时）
+	if err := model.AutoMigrate(db); err != nil {
+		slog.Error("数据库自动迁移失败", "error", err)
+		os.Exit(1)
+	}
+
 	// 初始化默认数据
 	if err := model.InitDefaultData(db); err != nil {
 		slog.Error("初始化默认数据失败", "error", err)
@@ -52,9 +58,10 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
 	permissionRepo := repository.NewPermissionRepository(db)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(db)
 
 	// 初始化服务层
-	userService := service.NewUserService(userRepo, roleRepo, permissionRepo, &cfg.JWT)
+	userService := service.NewUserService(userRepo, roleRepo, permissionRepo, refreshTokenRepo, &cfg.JWT)
 	roleService := service.NewRoleService(roleRepo, permissionRepo)
 	permissionService := service.NewPermissionService(permissionRepo)
 

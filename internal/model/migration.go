@@ -16,6 +16,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&User{},
 		&Role{},
 		&Permission{},
+		&UserRefreshToken{}, // 新增刷新令牌表
 	)
 
 	if err != nil {
