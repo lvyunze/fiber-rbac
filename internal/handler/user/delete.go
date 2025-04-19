@@ -31,6 +31,15 @@ func (h *DeleteHandler) Handle(c *fiber.Ctx) error {
 		return err
 	}
 
+	// 获取当前登录用户ID
+	currentUserID, ok := c.Locals("userID").(uint64)
+	if !ok || currentUserID == 0 {
+		return response.Fail(c, response.CodeUnauthorized, "未登录或身份异常")
+	}
+	if req.ID == currentUserID {
+		return response.Fail(c, response.CodeForbidden, "禁止删除自己的账号")
+	}
+
 	// 调用服务层删除用户
 	err := h.userService.Delete(req.ID)
 	if err != nil {
