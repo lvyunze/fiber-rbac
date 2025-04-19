@@ -3,9 +3,10 @@ package test
 import (
 	"fmt"
 	"os"
+	"time"
+
 	"github.com/lvyunze/fiber-rbac/config"
 	"github.com/lvyunze/fiber-rbac/internal/model"
-	"time"
 )
 
 // FixUserRoles 修复用户角色关联

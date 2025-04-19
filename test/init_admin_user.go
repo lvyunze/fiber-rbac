@@ -1,15 +1,21 @@
-package test
+package main
 
 import (
 	"fmt"
 	"os"
+	"time"
+
 	"github.com/lvyunze/fiber-rbac/config"
 	"github.com/lvyunze/fiber-rbac/internal/model"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/hash"
-	"time"
 
 	"gorm.io/gorm"
 )
+
+// main 入口，执行管理员初始化
+func main() {
+	InitAdminUser()
+}
 
 // InitAdminUser 初始化管理员用户和相关角色、权限
 func InitAdminUser() {
@@ -29,6 +35,41 @@ func InitAdminUser() {
 
 	// 获取数据库连接
 	db := model.GetDB()
+
+	// 检查 admin 用户名或邮箱是否已存在，避免重复插入和脏数据修正
+	var admin model.User
+	hashedPwd, _ := hash.GeneratePassword("admin123")
+	err = db.Where("username = ? OR email = ?", "admin", "admin@example.com").First(&admin).Error
+	if err == nil {
+		// 已存在则强制修正 username/email 并重置密码
+		admin.Username = "admin"
+		admin.Email = "admin@example.com"
+		admin.Password = hashedPwd
+		admin.UpdatedAt = time.Now().Unix()
+		if err := db.Save(&admin).Error; err != nil {
+			fmt.Printf("修正 admin 用户失败: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Println("admin 用户已存在，已修正并重置密码为：admin123")
+		return
+	} else if err != gorm.ErrRecordNotFound {
+		fmt.Printf("查询 admin 用户失败: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 不存在则插入 admin 用户
+	adminUser := &model.User{
+		Username:  "admin",
+		Email:     "admin@example.com",
+		Password:  hashedPwd,
+		CreatedAt: time.Now().Unix(),
+		UpdatedAt: time.Now().Unix(),
+	}
+	if err := db.Create(adminUser).Error; err != nil {
+		fmt.Printf("创建 admin 用户失败: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("admin 用户初始化成功，用户名：admin，密码：admin123")
 
 	// 初始化默认数据
 	if err := initDefaultData(db); err != nil {
@@ -158,7 +199,7 @@ func initDefaultData(db *gorm.DB) error {
 
 		// 创建管理员用户
 		adminUser := &model.User{
-			Username:  "√",
+			Username:  "admin",
 			Email:     "admin@example.com",
 			Password:  hashedPassword,
 			CreatedAt: time.Now().Unix(),

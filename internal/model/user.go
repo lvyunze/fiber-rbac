@@ -39,9 +39,9 @@ func (u *User) BeforeUpdate(tx *gorm.DB) error {
 
 // UserRole 用户角色关联模型
 type UserRole struct {
-	UserID    uint64 `gorm:"primaryKey;not null" json:"user_id"`
-	RoleID    uint64 `gorm:"primaryKey;not null" json:"role_id"`
-	CreatedAt int64  `gorm:"not null" json:"created_at"`
+	UserID    uint64 `gorm:"primaryKey" json:"user_id"`
+	RoleID    uint64 `gorm:"primaryKey" json:"role_id"`
+	CreatedAt int64  `gorm:"not null;autoCreateTime" json:"created_at"`
 }
 
 // TableName 设置表名
@@ -51,7 +51,6 @@ func (UserRole) TableName() string {
 
 // BeforeCreate 创建前钩子
 func (ur *UserRole) BeforeCreate(tx *gorm.DB) error {
-	// 设置创建时间
 	if ur.CreatedAt == 0 {
 		ur.CreatedAt = NowUnix()
 	}

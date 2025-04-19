@@ -28,6 +28,7 @@ func RegisterRoutes(app *fiber.App, userService service.UserService, roleService
 	// 用户个人信息和权限检查
 	authGroup.Post("/profile", middleware.Auth(jwtConfig), auth.NewProfileHandler(userService).Handle)
 	authGroup.Post("/check-permission", middleware.Auth(jwtConfig), auth.NewCheckHandler(userService).Handle)
+	authGroup.Post("/check", middleware.Auth(jwtConfig), auth.NewCheckHandler(userService).Handle)
 
 	// 用户管理
 	userGroup := authRequired.Group("/users")
