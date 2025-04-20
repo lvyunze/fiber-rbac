@@ -349,23 +349,31 @@ func (s *userService) GetByID(id uint64) (*schema.UserResponse, error) {
 	return s.convertToUserResponse(user), nil
 }
 
-// List 获取用户列表
+// List 获取用户列表，返回完整分页信息
 func (s *userService) List(req *schema.ListUserRequest) (*schema.ListUserResponse, error) {
-	// 获取用户列表
-	users, total, err := s.userRepo.List(req.Page, req.PageSize, req.Keyword)
+	orderBy := req.OrderBy
+	desc := req.Desc
+	users, total, err := s.userRepo.List(req.Page, req.PageSize, req.Keyword, orderBy, desc)
 	if err != nil {
 		return nil, err
 	}
 
-	// 转换为响应格式
 	items := make([]schema.UserResponse, 0, len(users))
 	for _, user := range users {
 		items = append(items, *s.convertToUserResponse(user))
 	}
 
+	totalPages := 0
+	if req.PageSize > 0 {
+		totalPages = int((total + int64(req.PageSize) - 1) / int64(req.PageSize))
+	}
+
 	return &schema.ListUserResponse{
-		Total: total,
-		Items: items,
+		Total:       total,
+		Page:        req.Page,
+		PageSize:    req.PageSize,
+		TotalPages:  totalPages,
+		Items:       items,
 	}, nil
 }
 

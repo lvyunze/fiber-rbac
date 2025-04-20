@@ -180,23 +180,31 @@ func (s *roleService) GetByID(id uint64) (*schema.RoleResponse, error) {
 	return s.convertToRoleResponse(role), nil
 }
 
-// List 获取角色列表
+// List 获取角色列表，返回完整分页信息
 func (s *roleService) List(req *schema.ListRoleRequest) (*schema.ListRoleResponse, error) {
-	// 获取角色列表
-	roles, total, err := s.roleRepo.List(req.Page, req.PageSize, req.Keyword)
+	orderBy := req.OrderBy
+	desc := req.Desc
+	roles, total, err := s.roleRepo.List(req.Page, req.PageSize, req.Keyword, orderBy, desc)
 	if err != nil {
 		return nil, err
 	}
 
-	// 转换为响应格式
 	items := make([]schema.RoleResponse, 0, len(roles))
 	for _, role := range roles {
 		items = append(items, *s.convertToRoleResponse(role))
 	}
 
+	totalPages := 0
+	if req.PageSize > 0 {
+		totalPages = int((total + int64(req.PageSize) - 1) / int64(req.PageSize))
+	}
+
 	return &schema.ListRoleResponse{
-		Total: total,
-		Items: items,
+		Total:       total,
+		Page:        req.Page,
+		PageSize:    req.PageSize,
+		TotalPages:  totalPages,
+		Items:       items,
 	}, nil
 }
 

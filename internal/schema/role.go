@@ -32,11 +32,15 @@ type GetRoleRequest struct {
 	ID uint64 `json:"id" validate:"required"`
 }
 
-// ListRoleRequest 
+// ListRoleRequest 角色列表请求参数
+// 支持多字段排序、游标分页
+// swagger:model
 type ListRoleRequest struct {
-	Page     int    `json:"page" validate:"omitempty,min=1"`
-	PageSize int    `json:"page_size" validate:"omitempty,min=1,max=100"`
-	Keyword  string `json:"keyword" validate:"omitempty"`
+	Page     int    `json:"page"`    // 页码
+	PageSize int    `json:"page_size"` // 每页数量
+	Keyword  string `json:"keyword"`  // 关键词
+	OrderBy  string `json:"order_by"` // 排序字段
+	Desc     bool   `json:"desc"`     // 是否降序
 }
 
 // RoleDetailRequest 获取角色详情请求
@@ -66,8 +70,12 @@ type PermissionSimple struct {
 	Name string `json:"name"`
 }
 
-// ListRoleResponse 
+// ListRoleResponse 角色列表响应，包含分页信息
+// Deprecated: use pagination.PageResult[RoleResponse]
 type ListRoleResponse struct {
-	Total int64          `json:"total"`
-	Items []RoleResponse `json:"items"`
+	Total     int64          `json:"total"`
+	Page      int            `json:"page"`
+	PageSize  int            `json:"page_size"`
+	TotalPages int           `json:"total_pages"`
+	Items     []RoleResponse `json:"items"`
 }
