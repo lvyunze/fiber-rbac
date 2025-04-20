@@ -358,3 +358,79 @@ func TestRoleService_Delete(t *testing.T) {
 		})
 	}
 }
+
+// TestRoleService_List 分页列表测试
+func TestRoleService_List(t *testing.T) {
+	mockRoleRepo := new(mocks.MockRoleRepository)
+	mockPermRepo := new(mocks.MockPermissionRepository)
+	service := service.NewRoleService(mockRoleRepo, mockPermRepo)
+
+	tests := []struct {
+		name       string
+		page       int
+		pageSize   int
+		keyword    string
+		mockSetup  func()
+		expectResp *schema.ListRoleResponse
+		expectErr  error
+	}{
+		{
+			name:     "正常分页返回",
+			page:     1,
+			pageSize: 2,
+			keyword:  "",
+			mockSetup: func() {
+				roles := []*model.Role{{ID: 1, Name: "admin"}, {ID: 2, Name: "user"}}
+				mockRoleRepo.On("List", 1, 2, "").Return(roles, int64(2), nil)
+			},
+			expectResp: &schema.ListRoleResponse{
+				Total:      2,
+				Page:       1,
+				PageSize:   2,
+				TotalPages: 1,
+				Items: []schema.RoleResponse{{ID: 1, Name: "admin", Permissions: []schema.PermissionSimple{}}, {ID: 2, Name: "user", Permissions: []schema.PermissionSimple{}}},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "无数据",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockRoleRepo.On("List", 1, 10, "").Return([]*model.Role{}, int64(0), nil)
+			},
+			expectResp: &schema.ListRoleResponse{
+				Total:      0,
+				Page:       1,
+				PageSize:   10,
+				TotalPages: 0,
+				Items:      []schema.RoleResponse{},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "数据库异常",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockRoleRepo.On("List", 1, 10, "").Return([]*model.Role(nil), int64(0), errors.ErrDB)
+			},
+			expectResp: nil,
+			expectErr: errors.ErrDB,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRoleRepo.ExpectedCalls = nil // 清理历史
+			if tt.mockSetup != nil {
+				tt.mockSetup()
+			}
+			resp, err := service.List(&schema.ListRoleRequest{Page: tt.page, PageSize: tt.pageSize, Keyword: tt.keyword})
+			assert.Equal(t, tt.expectErr, err)
+			assert.Equal(t, tt.expectResp, resp)
+		})
+	}
+}

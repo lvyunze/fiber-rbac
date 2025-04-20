@@ -305,3 +305,78 @@ func TestPermissionService_Delete(t *testing.T) {
 		})
 	}
 }
+
+// TestPermissionService_List 分页列表测试
+func TestPermissionService_List(t *testing.T) {
+	mockPermRepo := new(mocks.MockPermissionRepository)
+	service := service.NewPermissionService(mockPermRepo)
+
+	tests := []struct {
+		name       string
+		page       int
+		pageSize   int
+		keyword    string
+		mockSetup  func()
+		expectResp *schema.ListPermissionResponse
+		expectErr  error
+	}{
+		{
+			name:     "正常分页返回",
+			page:     1,
+			pageSize: 2,
+			keyword:  "",
+			mockSetup: func() {
+				perms := []*model.Permission{{ID: 1, Name: "perm1"}, {ID: 2, Name: "perm2"}}
+				mockPermRepo.On("List", 1, 2, "").Return(perms, int64(2), nil)
+			},
+			expectResp: &schema.ListPermissionResponse{
+				Total:      2,
+				Page:       1,
+				PageSize:   2,
+				TotalPages: 1,
+				Items: []schema.PermissionResponse{{ID: 1, Name: "perm1"}, {ID: 2, Name: "perm2"}},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "无数据",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockPermRepo.On("List", 1, 10, "").Return([]*model.Permission{}, int64(0), nil)
+			},
+			expectResp: &schema.ListPermissionResponse{
+				Total:      0,
+				Page:       1,
+				PageSize:   10,
+				TotalPages: 0,
+				Items:      []schema.PermissionResponse{},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "数据库异常",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockPermRepo.On("List", 1, 10, "").Return([]*model.Permission(nil), int64(0), errors.ErrDB)
+			},
+			expectResp: nil,
+			expectErr: errors.ErrDB,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockPermRepo.ExpectedCalls = nil // 清理历史
+			if tt.mockSetup != nil {
+				tt.mockSetup()
+			}
+			resp, err := service.List(&schema.ListPermissionRequest{Page: tt.page, PageSize: tt.pageSize, Keyword: tt.keyword})
+			assert.Equal(t, tt.expectErr, err)
+			assert.Equal(t, tt.expectResp, resp)
+		})
+	}
+}

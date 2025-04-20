@@ -41,8 +41,12 @@ type PermissionResponse struct {
 	CreatedAt   int64  `json:"created_at"`
 }
 
-// ListPermissionResponse 权限列表响应
+// ListPermissionResponse 权限列表响应，包含分页信息
+// Deprecated: use pagination.PageResult[PermissionResponse]
 type ListPermissionResponse struct {
-	Total int64                `json:"total"`
-	Items []PermissionResponse `json:"items"`
+	Total      int64                `json:"total"`
+	Page       int                  `json:"page"`
+	PageSize   int                  `json:"page_size"`
+	TotalPages int                  `json:"total_pages"`
+	Items      []PermissionResponse `json:"items"`
 }

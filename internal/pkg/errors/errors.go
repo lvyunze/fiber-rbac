@@ -24,4 +24,7 @@ var (
 	ErrInvalidToken      = errors.New("无效的令牌")
 	ErrExpiredToken      = errors.New("令牌已过期")
 	ErrInvalidTokenType  = errors.New("无效的令牌类型")
+
+	// 数据库相关错误
+	ErrDB = errors.New("数据库异常")
 )

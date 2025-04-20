@@ -78,10 +78,14 @@ type RoleSimple struct {
 	Name string `json:"name"`
 }
 
-// ListUserResponse 用户列表响应
+// ListUserResponse 用户列表响应，包含分页信息
+// Deprecated: use pagination.PageResult[UserResponse]
 type ListUserResponse struct {
-	Total int64          `json:"total"`
-	Items []UserResponse `json:"items"`
+	Total      int64          `json:"total"`
+	Page       int            `json:"page"`
+	PageSize   int            `json:"page_size"`
+	TotalPages int            `json:"total_pages"`
+	Items      []UserResponse `json:"items"`
 }
 
 // UserDeleteRequest 删除用户请求

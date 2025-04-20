@@ -284,3 +284,81 @@ func TestUserService_GetProfile(t *testing.T) {
 		})
 	}
 }
+
+// TestUserService_List 分页列表测试
+func TestUserService_List(t *testing.T) {
+	mockUserRepo := new(mocks.MockUserRepository)
+	mockRoleRepo := new(mocks.MockRoleRepository)
+	mockPermRepo := new(mocks.MockPermissionRepository)
+	mockRefreshTokenRepo := new(mocks.MockRefreshTokenRepository)
+	service := service.NewUserService(mockUserRepo, mockRoleRepo, mockPermRepo, mockRefreshTokenRepo, &config.JWTConfig{})
+
+	tests := []struct {
+		name       string
+		page       int
+		pageSize   int
+		keyword    string
+		mockSetup  func()
+		expectResp *schema.ListUserResponse
+		expectErr  error
+	}{
+		{
+			name:     "正常分页返回",
+			page:     1,
+			pageSize: 2,
+			keyword:  "",
+			mockSetup: func() {
+				users := []*model.User{{ID: 1, Username: "u1"}, {ID: 2, Username: "u2"}}
+				mockUserRepo.On("List", 1, 2, "").Return(users, int64(2), nil)
+			},
+			expectResp: &schema.ListUserResponse{
+				Total:      2,
+				Page:       1,
+				PageSize:   2,
+				TotalPages: 1,
+				Items: []schema.UserResponse{{ID: 1, Username: "u1", Roles: []schema.RoleSimple{}}, {ID: 2, Username: "u2", Roles: []schema.RoleSimple{}}},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "无数据",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockUserRepo.On("List", 1, 10, "").Return([]*model.User{}, int64(0), nil)
+			},
+			expectResp: &schema.ListUserResponse{
+				Total:      0,
+				Page:       1,
+				PageSize:   10,
+				TotalPages: 0,
+				Items:      []schema.UserResponse{},
+			},
+			expectErr: nil,
+		},
+		{
+			name:     "数据库异常",
+			page:     1,
+			pageSize: 10,
+			keyword:  "",
+			mockSetup: func() {
+				mockUserRepo.On("List", 1, 10, "").Return([]*model.User(nil), int64(0), errors.ErrDB)
+			},
+			expectResp: nil,
+			expectErr: errors.ErrDB,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockUserRepo.ExpectedCalls = nil // 清理历史
+			if tt.mockSetup != nil {
+				tt.mockSetup()
+			}
+			resp, err := service.List(&schema.ListUserRequest{Page: tt.page, PageSize: tt.pageSize, Keyword: tt.keyword})
+			assert.Equal(t, tt.expectErr, err)
+			assert.Equal(t, tt.expectResp, resp)
+		})
+	}
+}
