@@ -147,31 +147,23 @@ func (s *permissionService) GetByID(id uint64) (*schema.PermissionResponse, erro
 	return s.convertToPermissionResponse(permission), nil
 }
 
-// List 获取权限列表，返回完整分页信息
+// List 获取权限列表
 func (s *permissionService) List(req *schema.ListPermissionRequest) (*schema.ListPermissionResponse, error) {
-	orderBy := req.OrderBy
-	desc := req.Desc
-	permissions, total, err := s.permissionRepo.List(req.Page, req.PageSize, req.Keyword, orderBy, desc)
+	// 获取权限列表
+	permissions, total, err := s.permissionRepo.List(req.Page, req.PageSize, req.Keyword)
 	if err != nil {
 		return nil, err
 	}
 
+	// 转换为响应格式
 	items := make([]schema.PermissionResponse, 0, len(permissions))
 	for _, permission := range permissions {
 		items = append(items, *s.convertToPermissionResponse(permission))
 	}
 
-	totalPages := 0
-	if req.PageSize > 0 {
-		totalPages = int((total + int64(req.PageSize) - 1) / int64(req.PageSize))
-	}
-
 	return &schema.ListPermissionResponse{
-		Total:       total,
-		Page:        req.Page,
-		PageSize:    req.PageSize,
-		TotalPages:  totalPages,
-		Items:       items,
+		Total: total,
+		Items: items,
 	}, nil
 }
 

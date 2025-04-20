@@ -60,8 +60,6 @@ type ListUserRequest struct {
 	Page     int    `json:"page" validate:"omitempty,min=1"`
 	PageSize int    `json:"page_size" validate:"omitempty,min=1,max=100"`
 	Keyword  string `json:"keyword" validate:"omitempty"`
-	OrderBy  string `json:"order_by"` // 排序字段
-	Desc     bool   `json:"desc"`     // 是否降序
 }
 
 // UserResponse 用户信息响应
@@ -80,14 +78,10 @@ type RoleSimple struct {
 	Name string `json:"name"`
 }
 
-// ListUserResponse 用户列表响应，包含分页信息
-// Deprecated: use pagination.PageResult[UserResponse]
+// ListUserResponse 用户列表响应
 type ListUserResponse struct {
-	Total      int64          `json:"total"`
-	Page       int            `json:"page"`
-	PageSize   int            `json:"page_size"`
-	TotalPages int            `json:"total_pages"`
-	Items      []UserResponse `json:"items"`
+	Total int64          `json:"total"`
+	Items []UserResponse `json:"items"`
 }
 
 // UserDeleteRequest 删除用户请求
