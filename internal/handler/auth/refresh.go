@@ -25,6 +25,17 @@ func NewRefreshHandler(userService service.UserService) *RefreshHandler {
 }
 
 // Handle 处理刷新令牌请求
+// @Summary 刷新访问令牌
+// @Description 使用刷新令牌获取新的访问令牌
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param data body schema.RefreshTokenRequest true "刷新令牌请求参数"
+// @Success 200 {object} schema.LoginResponse "刷新成功，返回新令牌"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 401 {object} response.Response "无效的刷新令牌"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/auth/refresh [post]
 func (h *RefreshHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.RefreshTokenRequest)

@@ -8,8 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	
+
 	"github.com/lvyunze/fiber-rbac/config"
+	_ "github.com/lvyunze/fiber-rbac/docs"
 	"github.com/lvyunze/fiber-rbac/internal/app"
 	"github.com/lvyunze/fiber-rbac/internal/model"
 	"github.com/lvyunze/fiber-rbac/internal/pkg/logger"
@@ -67,6 +68,9 @@ func main() {
 
 	// 初始化Fiber应用
 	fiberApp := app.NewFiberApp(cfg)
+
+	// 是否开放 swagger 文档（可根据配置/环境变量控制）
+	app.RegisterSwaggerRoute(fiberApp, cfg.Env == "dev")
 
 	// 注册路由
 	app.RegisterRoutes(fiberApp, userService, roleService, permissionService, &cfg.JWT)

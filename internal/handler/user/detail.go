@@ -24,6 +24,17 @@ func NewDetailHandler(userService service.UserService) *DetailHandler {
 }
 
 // Handle 处理获取用户详情请求
+// @Summary 获取用户详情
+// @Description 根据用户ID获取详细信息
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param data body schema.UserDetailRequest true "用户详情参数"
+// @Success 200 {object} schema.UserResponse "获取成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "用户不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/users/detail [post]
 func (h *DetailHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.UserDetailRequest)

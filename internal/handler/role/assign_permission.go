@@ -24,6 +24,17 @@ func NewAssignPermissionHandler(roleService service.RoleService) *AssignPermissi
 }
 
 // Handle 处理角色分配权限请求
+// @Summary 角色分配权限
+// @Description 为指定角色分配一个或多个权限
+// @Tags 角色权限
+// @Accept json
+// @Produce json
+// @Param data body schema.AssignPermissionRequest true "角色ID与权限ID列表"
+// @Success 200 {object} nil "分配成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "角色或权限不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/roles/assign_permission [post]
 func (h *AssignPermissionHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.AssignPermissionRequest)

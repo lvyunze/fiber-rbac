@@ -24,6 +24,18 @@ func NewUpdateHandler(userService service.UserService) *UpdateHandler {
 }
 
 // Handle 处理更新用户请求
+// @Summary 更新用户信息
+// @Description 更新指定用户的基本信息
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param data body schema.UpdateUserRequest true "用户更新参数"
+// @Success 200 {object} nil "更新成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "用户不存在"
+// @Failure 409 {object} response.Response "用户名或邮箱已存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/users/update [post]
 func (h *UpdateHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.UpdateUserRequest)

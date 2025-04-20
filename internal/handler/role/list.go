@@ -23,6 +23,16 @@ func NewListHandler(roleService service.RoleService) *ListHandler {
 }
 
 // Handle 处理获取角色列表请求
+// @Summary 获取角色列表
+// @Description 分页查询所有角色信息
+// @Tags 角色管理
+// @Accept json
+// @Produce json
+// @Param data body schema.ListRoleRequest true "分页与筛选参数"
+// @Success 200 {object} schema.ListRoleResponse "获取成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/roles/list [post]
 func (h *ListHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.ListRoleRequest)

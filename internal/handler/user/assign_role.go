@@ -24,6 +24,17 @@ func NewAssignRoleHandler(userService service.UserService) *AssignRoleHandler {
 }
 
 // Handle 处理用户分配角色请求
+// @Summary 分配用户角色
+// @Description 为指定用户分配一个或多个角色
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param data body schema.AssignRoleRequest true "用户ID与角色ID列表"
+// @Success 200 {object} nil "分配成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "用户或角色不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/users/assign_role [post]
 func (h *AssignRoleHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.AssignRoleRequest)

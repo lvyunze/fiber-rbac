@@ -24,6 +24,19 @@ func NewDeleteHandler(userService service.UserService) *DeleteHandler {
 }
 
 // Handle 处理删除用户请求
+// @Summary 删除用户
+// @Description 管理员删除指定用户账号
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param data body schema.UserDeleteRequest true "用户删除参数"
+// @Success 200 {object} nil "删除成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 401 {object} response.Response "未登录或身份异常"
+// @Failure 403 {object} response.Response "禁止删除自己的账号"
+// @Failure 404 {object} response.Response "用户不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/users/delete [post]
 func (h *DeleteHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.UserDeleteRequest)

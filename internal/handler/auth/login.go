@@ -23,6 +23,17 @@ func NewLoginHandler(userService service.UserService) *LoginHandler {
 }
 
 // Handle 处理登录请求
+// @Summary 用户登录
+// @Description 用户通过用户名和密码登录，获取访问令牌
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param data body schema.LoginRequest true "登录请求参数"
+// @Success 200 {object} schema.LoginResponse "登录成功，返回令牌信息"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 401 {object} response.Response "用户名或密码错误"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/auth/login [post]
 func (h *LoginHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.LoginRequest)

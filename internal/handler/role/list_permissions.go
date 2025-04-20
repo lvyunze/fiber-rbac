@@ -24,6 +24,17 @@ func NewListPermissionsHandler(roleService service.RoleService) *ListPermissions
 }
 
 // Handle 处理获取角色权限列表请求
+// @Summary 获取角色权限列表
+// @Description 查询指定角色已分配的所有权限
+// @Tags 角色权限
+// @Accept json
+// @Produce json
+// @Param data body schema.RoleListPermissionsRequest true "角色ID参数"
+// @Success 200 {object} []schema.PermissionSimple "获取成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "角色不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/roles/list_permissions [post]
 func (h *ListPermissionsHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.RoleListPermissionsRequest)

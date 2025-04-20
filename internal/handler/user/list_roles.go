@@ -24,6 +24,17 @@ func NewListRolesHandler(userService service.UserService) *ListRolesHandler {
 }
 
 // Handle 处理获取用户角色列表请求
+// @Summary 获取用户角色列表
+// @Description 查询指定用户已分配的所有角色
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param data body schema.UserListRolesRequest true "用户ID参数"
+// @Success 200 {object} []schema.RoleSimple "获取成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 404 {object} response.Response "用户不存在"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/users/list_roles [post]
 func (h *ListRolesHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.UserListRolesRequest)

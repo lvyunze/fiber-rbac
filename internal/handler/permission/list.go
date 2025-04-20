@@ -23,6 +23,16 @@ func NewListHandler(permissionService service.PermissionService) *ListHandler {
 }
 
 // Handle 处理获取权限列表请求
+// @Summary 获取权限列表
+// @Description 分页查询所有权限信息
+// @Tags 权限管理
+// @Accept json
+// @Produce json
+// @Param data body schema.ListPermissionRequest true "分页与筛选参数"
+// @Success 200 {object} schema.ListPermissionResponse "获取成功"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/permissions/list [post]
 func (h *ListHandler) Handle(c *fiber.Ctx) error {
 	// 解析请求参数
 	req := new(schema.ListPermissionRequest)

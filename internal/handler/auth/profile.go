@@ -22,6 +22,15 @@ func NewProfileHandler(userService service.UserService) *ProfileHandler {
 }
 
 // Handle 处理获取用户个人信息请求
+// @Summary 获取当前用户信息
+// @Description 获取当前登录用户的详细信息
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Success 200 {object} schema.UserResponse "获取成功"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/auth/profile [get]
 func (h *ProfileHandler) Handle(c *fiber.Ctx) error {
 	// 从上下文中获取用户ID
 	userID := middleware.GetUserID(c)

@@ -24,6 +24,17 @@ func NewCheckHandler(userService service.UserService) *CheckHandler {
 }
 
 // Handle 处理权限检查请求
+// @Summary 检查用户权限
+// @Description 检查当前用户是否具备指定权限
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param data body schema.CheckPermissionRequest true "权限检查请求参数"
+// @Success 200 {object} map[string]bool "检查结果"
+// @Failure 400 {object} response.Response "参数错误"
+// @Failure 401 {object} response.Response "未授权"
+// @Failure 500 {object} response.Response "服务器内部错误"
+// @Router /api/v1/auth/check [post]
 func (h *CheckHandler) Handle(c *fiber.Ctx) error {
 	// 从上下文获取用户ID
 	userID := middleware.GetUserID(c)
